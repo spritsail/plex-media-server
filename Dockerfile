@@ -2,7 +2,8 @@ FROM alpine:3.4
 MAINTAINER Adam Dodman <adam.dodman@gmx.com>
 
 ENV UID=787 UNAME=plex GID=990 GNAME=media DESTDIR="/plex"
-ENV GLIBC_LIBRARY_PATH="/plex/lib" GLIBC_LD_LINUX_SO="/plex/lib/ld-linux-x86-64.so.2"
+ENV GLIBC_LIBRARY_PATH="$DESTDIR/lib" GLIBC_LD_LINUX_SO="/plex/lib/ld-linux-x86-64.so.2"
+ENV DEBS="libc6 libgcc1 libstdc++6 plexmediaserver"
 
 ADD start_pms.patch /tmp/start_pms.patch
 
@@ -19,7 +20,7 @@ RUN addgroup -g $GID $GNAME \
  && wget http://ftp.debian.org/debian/pool/main/g/gcc-4.9/libstdc++6_4.9.2-10_amd64.deb \
  && wget -O plexmediaserver.deb 'https://plex.tv/downloads/latest/1?channel=8&build=linux-ubuntu-x86_64&distro=ubuntu' \
 
- && for pkg in libc6 libgcc1 libstdc++6 plexmediaserver; do \
+ && for pkg in $DEBS; do \
         mkdir $pkg; \
         cd $pkg; \
         ar x ../$pkg*.deb; \
