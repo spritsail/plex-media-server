@@ -2,8 +2,8 @@ FROM alpine:3.4
 MAINTAINER Adam Dodman <adam.dodman@gmx.com>
 
 ENV UID=787 UNAME=plex GID=990 GNAME=media DESTDIR="/plex"
-ENV GLIBC_LIBRARY_PATH="$DESTDIR/lib" GLIBC_LD_LINUX_SO="/plex/lib/ld-linux-x86-64.so.2"
-ENV DEBS="libc6 libgcc1 libstdc++6 plexmediaserver"
+ENV GLIBC_LIBRARY_PATH="$DESTDIR/lib" DEBS="libc6 libgcc1 libstdc++6 plexmediaserver"
+ENV GLIBC_LD_LINUX_SO="$GLIBC_LIBRARY_PATH/ld-linux-x86-64.so.2"
 
 ADD start_pms.patch /tmp/start_pms.patch
 
