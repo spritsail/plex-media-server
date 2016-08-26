@@ -55,8 +55,8 @@ RUN addgroup -g $GID $GNAME \
  && rm -rf /tmp/*
 
 
- USER plex
+USER plex
 
- WORKDIR ["/plex"]
+WORKDIR ["/plex"]
 
- CMD ["/plex/start_pms"]
+CMD ["/plex/start_pms"]
