@@ -20,12 +20,11 @@
 
  if [ ! -d "$PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR" ]
  then
-@@ -19,14 +17,18 @@ then
+@@ -19,14 +17,17 @@
    fi
  fi
 
 -export LD_LIBRARY_PATH="${PLEX_MEDIA_SERVER_HOME}"
-+. <destdir>/lib/vars.sh
 +export LD_LIBRARY_PATH="${PLEX_MEDIA_SERVER_HOME}:${GLIBC_LIBRARY_PATH}"
  export TMPDIR="${PLEX_MEDIA_SERVER_TMPDIR}"
 
