@@ -1,6 +1,6 @@
 --- plexmediaserver/usr/sbin/start_pms
 +++ start_pms
-@@ -1,13 +1,11 @@
+@@ -1,17 +1,11 @@
  #!/bin/sh
 
 -#change these parameters in /etc/default/plexmediaserver
@@ -9,6 +9,10 @@
 -export PLEX_MEDIA_SERVER_MAX_STACK_SIZE=3000
 -export PLEX_MEDIA_SERVER_TMPDIR=/tmp
 -export PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR="${HOME}/Library/Application Support"
+-if [ -f /etc/default/locale ]; then
+-  export LANG="`cat /etc/default/locale|awk -F '=' '/LANG=/{print $2}'|sed 's/"//g'`"
+-  export LC_ALL="$LANG"
+-fi
 -
 -test -f /etc/default/plexmediaserver && . /etc/default/plexmediaserver
 +# Default values
@@ -20,7 +24,7 @@
 
  if [ ! -d "$PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR" ]
  then
-@@ -19,14 +17,17 @@
+@@ -23,14 +17,17 @@
    fi
  fi
 
