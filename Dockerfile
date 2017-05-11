@@ -1,38 +1,20 @@
-FROM adamant/alpine-glibc
+FROM adamant/busybox
 MAINTAINER Adam Dodman <adam.dodman@gmx.com>
 
-ENV UID=787 UNAME=plex GID=990 GNAME=media
+ENV UID=787 GID=990
 ADD start_pms.patch /tmp/start_pms.patch
 
 WORKDIR /tmp
 
-RUN addgroup -g $GID $GNAME \
- && adduser -SH -u $UID -G $GNAME -s /usr/sbin/nologin $UNAME \
-
- && apk add --no-cache xz binutils patchelf openssl file \
-
+RUN wget http://ftp.de.debian.org/debian/pool/main/g/gcc-4.9/libstdc++6_4.9.2-10_amd64.deb \
+ && pkgextract libstdc++6*.deb \
  && wget -O plexmediaserver.deb 'https://plex.tv/downloads/latest/1?channel=8&build=linux-ubuntu-x86_64&distro=ubuntu' \
-
- && ar x plexmediaserver.deb \
- && tar -xf data.tar.* \
-
- && find usr/lib/plexmediaserver -type f -perm /0111 -exec sh -c "file --brief \"{}\" | grep -q "ELF" && patchelf --set-interpreter \"$GLIBC_LD_LINUX_SO\" \"{}\" " \; \
-
- && mv /tmp/start_pms.patch usr/sbin/ \
- && cd usr/sbin/ \
- && patch < start_pms.patch \
- && cd /tmp \
- && sed -i "s|<destdir>|$DESTDIR|" usr/sbin/start_pms \
-
- && mv usr/sbin/start_pms $DESTDIR/ \
- && mv usr/lib/plexmediaserver $DESTDIR/plex-media-server \
-
- && apk del --no-cache xz binutils patchelf file \
+ && dpkg-deb -x plexmediaserver.deb / \
+ && cd /usr/sbin/ \
+ && patch < /tmp/start_pms.patch \
  && rm -rf /tmp/*
 
+WORKDIR /usr/lib/plexmediaserver
 
-USER plex
-
-WORKDIR /glibc
-
-CMD ["/glibc/start_pms"]
+ENTRYPOINT ["/sbin/tini", "--"]
+CMD ["su-exec", "$UID:$GID", "start_pms"]
