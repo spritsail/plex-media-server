@@ -1,7 +1,7 @@
 FROM adamant/busybox
 MAINTAINER Adam Dodman <adam.dodman@gmx.com>
 
-ENV UID=787 GID=990
+ENV UID=900 GID=900
 ADD start_pms.patch /tmp/start_pms.patch
 
 WORKDIR /tmp
