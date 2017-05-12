@@ -1,4 +1,4 @@
-FROM adamant/busybox
+FROM adamant/busybox:libressl
 MAINTAINER Adam Dodman <adam.dodman@gmx.com>
 
 ENV UID=900 GID=900
