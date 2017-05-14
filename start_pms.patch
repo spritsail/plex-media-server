@@ -1,6 +1,6 @@
---- plexmediaserver/usr/sbin/start_pms
-+++ start_pms
-@@ -1,17 +1,11 @@
+--- start_pms
++++ /usr/bin/start_pms
+@@ -1,17 +1,12 @@
  #!/bin/sh
 
 -#change these parameters in /etc/default/plexmediaserver
@@ -21,16 +21,17 @@
 +export PLEX_MEDIA_SERVER_MAX_STACK_SIZE="${PLEX_MEDIA_SERVER_MAX_STACK_SIZE:-3000}"
 +export PLEX_MEDIA_SERVER_TMPDIR="${PLEX_MEDIA_SERVER_TMPDIR:-/tmp}"
 +export PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR="${PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR:-/config}"
++export PLEX_MEDIA_SERVER_CONFIG_DIR="${PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR}/Plex Media Server"
 
  if [ ! -d "$PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR" ]
  then
-@@ -22,15 +16,17 @@
+@@ -22,15 +17,18 @@
      exit 1
    fi
  fi
-+if [ ! -w "$PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR" ]
++if [ ! -w "$PLEX_MEDIA_SERVER_CONFIG_DIR" ]
 +then
-+  echo "ERROR: CANNOT WRITE IN $PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR, MAKE SURE I HAVE PERMISSION TO DO THAT!"
++  echo "ERROR: CANNOT WRITE IN $PLEX_MEDIA_SERVER_CONFIG_DIR, MAKE SURE I HAVE PERMISSION TO DO THAT!"
 +  exit 2
 +fi
 
@@ -44,8 +45,9 @@
 -
 -# Add sleep - Possible fix for start on boot.
 -sleep 3
-+if [ -f /config/Plex\ Media\ Server/plexmediaserver.pid ]; then
-+    rm -f /config/Plex\ Media\ Server/plexmediaserver.pid
++PIDFILE="${PLEX_MEDIA_SERVER_CONFIG_DIR}/plexmediaserver.pid"
++if [ -f "$PIDFILE" ]; then
++    rm -f "$PIDFILE"
 +fi
 
 -(cd /usr/lib/plexmediaserver; ./Plex\ Media\ Server)
