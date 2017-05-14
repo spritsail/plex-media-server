@@ -24,4 +24,4 @@ RUN wget http://ftp.de.debian.org/debian/pool/main/g/gcc-4.9/libstdc++6_4.9.2-10
 WORKDIR /usr/lib/plexmediaserver
 
 ENTRYPOINT ["/sbin/tini", "--"]
-CMD exec su-exec $UID:$GID start_pms
+CMD ["start_pms"]

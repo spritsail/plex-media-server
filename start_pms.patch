@@ -1,6 +1,6 @@
 --- start_pms
 +++ /usr/bin/start_pms
-@@ -1,17 +1,12 @@
+@@ -1,36 +1,39 @@
  #!/bin/sh
 
 -#change these parameters in /etc/default/plexmediaserver
@@ -25,11 +25,16 @@
 
  if [ ! -d "$PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR" ]
  then
-@@ -22,15 +17,18 @@
+-  mkdir -p "$PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR"
++  mkdir -p "$PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR" && \
++  chown $UID:$GID "$PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR"
+   if [ ! $? -eq 0 ]
+   then
+     echo "WARNING COULDN'T CREATE $PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR, MAKE SURE I HAVE PERMISSON TO DO THAT!"
      exit 1
    fi
  fi
-+if [ ! -w "$PLEX_MEDIA_SERVER_CONFIG_DIR" ]
++if su-exec $UID:$GID [ ! -w "$PLEX_MEDIA_SERVER_CONFIG_DIR" ]
 +then
 +  echo "ERROR: CANNOT WRITE IN $PLEX_MEDIA_SERVER_CONFIG_DIR, MAKE SURE I HAVE PERMISSION TO DO THAT!"
 +  exit 2
@@ -45,10 +50,14 @@
 -
 -# Add sleep - Possible fix for start on boot.
 -sleep 3
++# Allow Plex group to write to tmpdir
++chgrp $GID "$TMPDIR"
++chmod g+rwx "$TMPDIR"
++
 +PIDFILE="${PLEX_MEDIA_SERVER_CONFIG_DIR}/plexmediaserver.pid"
 +if [ -f "$PIDFILE" ]; then
 +    rm -f "$PIDFILE"
 +fi
 
 -(cd /usr/lib/plexmediaserver; ./Plex\ Media\ Server)
-+exec "$PLEX_MEDIA_SERVER_HOME/Plex Media Server"
++exec su-exec $UID:$GID "$PLEX_MEDIA_SERVER_HOME/Plex Media Server"
