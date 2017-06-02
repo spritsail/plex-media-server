@@ -23,6 +23,12 @@ then
   echo "ERROR: CANNOT WRITE IN $PLEX_MEDIA_SERVER_CONFIG_DIR, MAKE SURE I HAVE PERMISSION TO DO THAT!"
   exit 2
 fi
+if [ ! -e "$PLEX_MEDIA_SERVER_CONFIG_DIR/Preferences.xml" ];
+then
+    # Create a default config file allowing external access
+    echo -e '<?xml version="1.0" encoding="utf-8"?>\n<Preferences disableRemoteSecurity="1" />' \
+        >> "$PLEX_MEDIA_SERVER_CONFIG_DIR/Preferences.xml"
+fi
 
 export LD_LIBRARY_PATH="${PLEX_MEDIA_SERVER_HOME}:$LD_LIBRARY_PATH"
 export TMPDIR="${PLEX_MEDIA_SERVER_TMPDIR}"
