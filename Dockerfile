@@ -2,7 +2,7 @@ FROM adamant/busybox:libressl
 MAINTAINER Adam Dodman <adam.dodman@gmx.com>
 
 ENV UID=900 GID=900
-ADD start_pms.patch /tmp/start_pms.patch
+ADD start_pms /usr/sbin/start_pms
 
 WORKDIR /tmp
 
@@ -17,8 +17,7 @@ RUN wget http://ftp.de.debian.org/debian/pool/main/g/gcc-4.9/libstdc++6_4.9.2-10
  && dpkg-deb -x plexmediaserver.deb . \
  # Move usr/lib and start_pms. Everything else is useless
  && mv usr/lib/plexmediaserver /usr/lib \
- && mv usr/sbin/start_pms /usr/sbin \
- && patch /usr/sbin/start_pms < /tmp/start_pms.patch \
+ && chmod +x /usr/sbin/start_pms \
  && find /tmp -mindepth 1 -delete
 
 WORKDIR /usr/lib/plexmediaserver
