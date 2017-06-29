@@ -1,0 +1,14 @@
+pipeline:
+  build:
+    image: docker
+    commands:
+       - docker build -t plexdev . 
+       - docker tag plexdev itpersists
+       - docker save -o image.tar plexdev
+    
+  test:
+    image: docker
+    commands:
+       - ls
+       - docker load -i image.tar
+       - docker images
