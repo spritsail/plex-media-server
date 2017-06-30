@@ -19,5 +19,15 @@ pipeline:
       - apk add --no-cache curl
       - docker run --name=DEV -d -p 32400:32400 devbuild
       - sleep 10  # Wait for plex to start!
-      - curl -s 127.0.0.1:32400 > /dev/null # Check if its responding, a 401 here is expected
+      - docker logs DEV
+      - curl docker:32400 # Check if its responding, a 401 here is expected [[TODO]] Maybe exec this from within docker, and grep for correct version?
+      - docker kill DEV #Not really needed, but keeps things quick
 
+  publish:
+    image: docker
+    environment:
+       - DOCKER_HOST=tcp://docker:2375
+    commands:
+       - docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+       - docker tag devbuild adamant/plexmediaserver:CI_TEST_BUILD
+       - docker push adamant/plexmediaserver:CI_TEST_BUILD
