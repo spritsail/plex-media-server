@@ -1,14 +1,22 @@
+services:
+  docker:
+    image: docker:dind
+    privileged: true
+
 pipeline:
   build:
     image: docker
+    environment:
+       - DOCKER_HOST=tcp://docker:2375
     commands:
-       - docker build -t plexdev . 
-       - docker tag plexdev itpersists
-       - docker save -o image.tar plexdev
-    
+       - docker build -t devbuild . 
+
   test:
     image: docker
+    environment:
+       - DOCKER_HOST=tcp://docker:2375
     commands:
-       - ls
-       - docker load -i image.tar
-       - docker images
+      - docker run --name=DEV -d -p 32400:32400 devbuild
+      - sleep 10  # Wait for plex to start!
+      - curl -s 127.0.0.1:32400
+
