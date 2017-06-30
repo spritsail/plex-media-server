@@ -33,6 +33,9 @@ pipeline:
        - export CUR_VERSION=$(wget -qO- https://adam-ant.co.uk/plex/version.php | cut -d \- -f1)
        - echo $CUR_VERSION
        - echo $DOCKER_USER
+       - docker tag devbuild adamant/plexmediaserver:latest
+       - docker tag devbuild adamant/plexmediaserver:$CUR_VERSION
        - docker login -u $DOCKER_USER -p $DOCKER_PASS
-       - docker tag devbuild adamant/plexmediaserver:CI_TEST_BUILD
-       - docker push adamant/plexmediaserver:CI_TEST_BUILD
+       - docker push adamant/plexmediaserver:latest
+       - docker push adamant/plexmediaserver:$CUR_VERSION
+       - echo "CONGRATS! SUCCESSFULLY BUILT PLEX VERSION "$CUR_VERSION
