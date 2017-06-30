@@ -16,7 +16,8 @@ pipeline:
     environment:
        - DOCKER_HOST=tcp://docker:2375
     commands:
+      - apk add --no-cache curl
       - docker run --name=DEV -d -p 32400:32400 devbuild
       - sleep 10  # Wait for plex to start!
-      - curl -s 127.0.0.1:32400
+      - curl -s 127.0.0.1:32400 > /dev/null # Check if its responding, a 401 here is expected
 
