@@ -25,9 +25,14 @@ pipeline:
 
   publish:
     image: docker
+    secrets: [ DOCKER_USER, DOCKER_PASS ]
     environment:
        - DOCKER_HOST=tcp://docker:2375
     commands:
-       - docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+       - apk add --no-cache openssl
+       - export CUR_VERSION=$(wget -qO- https://adam-ant.co.uk/plex/version.php | cut -d \- -f1)
+       - echo $CUR_VERSION
+       - echo $DOCKER_USER
+       - docker login -u $DOCKER_USER -p $DOCKER_PASS
        - docker tag devbuild adamant/plexmediaserver:CI_TEST_BUILD
        - docker push adamant/plexmediaserver:CI_TEST_BUILD
