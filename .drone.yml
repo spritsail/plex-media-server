@@ -9,7 +9,7 @@ pipeline:
     commands:
          # Grab the current version, prevents race conditions #### Pass this into the Dockerfile somehow?
        - apk add --no-cache openssl jq
-       - wget -qO- https://adam-ant.co.uk/plex/version.php | jq -r .release> .plex_version 
+       - wget -qO- https://adam-ant.co.uk/plex/pass-version.php | jq -r .release> .plex_version 
 
   build:
     image: docker
@@ -39,9 +39,10 @@ pipeline:
     commands:
          #Grab just the version, not the hash. Used for tagging
        - export CUR_VERSION=$(cat .plex_version | cut -d \- -f1 )
+       - echo $CUR_VERSION
        - echo $DOCKER_USER
-       - docker tag devbuild adamant/plexmediaserver:latest
-       - docker tag devbuild adamant/plexmediaserver:$CUR_VERSION
+       - docker tag devbuild adamant/plexmediaserver:plexpass
+       - docker tag devbuild adamant/plexmediaserver:plexpass-$CUR_VERSION
        - docker login -u $DOCKER_USER -p $DOCKER_PASS
        - docker push adamant/plexmediaserver
-       - echo "CONGRATS! SUCCESSFULLY BUILT PLEX VERSION "$CUR_VERSION
+       - echo "CONGRATS! SUCCESSFULLY BUILT PLEX VERSION $CUR_VERSION-PASS"
