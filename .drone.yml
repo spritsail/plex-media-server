@@ -4,6 +4,13 @@ services:
     privileged: true
 
 pipeline:
+  identify:
+    image: docker
+    commands:
+         # Grab the current version, prevents race conditions #### Pass this into the Dockerfile somehow?
+       - apk add --no-cache openssl
+       - wget -qO- https://adam-ant.co.uk/plex/version.php > .plex_version 
+
   build:
     image: docker
     environment:
@@ -16,11 +23,12 @@ pipeline:
     environment:
        - DOCKER_HOST=tcp://docker:2375
     commands:
-      - apk add --no-cache curl
+      - apk add --no-cache curl xmlstarlet grep
+      - export CUR_VERSION="$(cat .plex_version)"
       - docker run --name=DEV -d -p 32400:32400 devbuild
       - sleep 10  # Wait for plex to start!
       - docker logs DEV
-      - curl docker:32400 # Check if its responding, a 401 here is expected [[TODO]] Maybe exec this from within docker, and grep for correct version?
+      - curl -sSL docker:32400/identity | tee /dev/stderr | xmlstarlet sel -t -v "/MediaContainer/@version" | grep -qw $CUR_VERSION 
       - docker kill DEV #Not really needed, but keeps things quick
 
   publish:
@@ -29,13 +37,11 @@ pipeline:
     environment:
        - DOCKER_HOST=tcp://docker:2375
     commands:
-       - apk add --no-cache openssl
-       - export CUR_VERSION=$(wget -qO- https://adam-ant.co.uk/plex/version.php | cut -d \- -f1)
-       - echo $CUR_VERSION
+         #Grab just the version, not the hash. Used for tagging
+       - export CUR_VERSION=$(cat .plex_version | cut -d \- -f1 )
        - echo $DOCKER_USER
        - docker tag devbuild adamant/plexmediaserver:latest
        - docker tag devbuild adamant/plexmediaserver:$CUR_VERSION
        - docker login -u $DOCKER_USER -p $DOCKER_PASS
-       - docker push adamant/plexmediaserver:latest
-       - docker push adamant/plexmediaserver:$CUR_VERSION
+       - docker push adamant/plexmediaserver
        - echo "CONGRATS! SUCCESSFULLY BUILT PLEX VERSION "$CUR_VERSION
