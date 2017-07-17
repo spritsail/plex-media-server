@@ -8,8 +8,8 @@ pipeline:
     image: docker
     commands:
          # Grab the current version, prevents race conditions #### Pass this into the Dockerfile somehow?
-       - apk add --no-cache openssl
-       - wget -qO- https://adam-ant.co.uk/plex/version.php > .plex_version 
+       - apk add --no-cache openssl jq
+       - wget -qO- https://adam-ant.co.uk/plex/version.php | jq -r .release> .plex_version 
 
   build:
     image: docker
