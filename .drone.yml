@@ -26,7 +26,7 @@ pipeline:
       - apk add --no-cache curl xmlstarlet grep
       - export CUR_VERSION="$(cat .plex_version)"
       - docker run --name=DEV -d -p 32400:32400 devbuild
-      - sleep 10  # Wait for plex to start!
+      - sleep 25  # Wait for plex to start!
       - docker logs DEV
       - curl -sSL docker:32400/identity | tee /dev/stderr | xmlstarlet sel -t -v "/MediaContainer/@version" | grep -qw $CUR_VERSION 
       - docker kill DEV #Not really needed, but keeps things quick
