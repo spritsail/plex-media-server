@@ -7,21 +7,22 @@ pipeline:
   identify:
     image: docker
     commands:
-         # Grab the current version, prevents race conditions #### Pass this into the Dockerfile somehow?
-       - apk add --no-cache openssl jq
-       - wget -qO- https://adam-ant.co.uk/plex/version.php | tee /dev/stderr | jq -r .release > .plex_version
+      # Grab the current version, prevents race conditions
+      #### Pass this into the Dockerfile somehow?
+      - apk add --no-cache openssl jq
+      - wget -qO- https://adam-ant.co.uk/plex/version.php | tee /dev/stderr | jq -r .release > .plex_version
 
   build:
     image: docker
     environment:
-       - DOCKER_HOST=tcp://docker:2375
+      - DOCKER_HOST=tcp://docker:2375
     commands:
-       - docker build -t devbuild . 
+      - docker build -t devbuild .
 
   test:
     image: docker
     environment:
-       - DOCKER_HOST=tcp://docker:2375
+      - DOCKER_HOST=tcp://docker:2375
     commands:
       - apk add --no-cache curl xmlstarlet grep
       - export CUR_VERSION="$(cat .plex_version)"
@@ -29,7 +30,7 @@ pipeline:
       - sleep 10  # Wait for plex to start!
       - docker logs DEV
       - curl -sSL docker:32400/identity | tee /dev/stderr | xmlstarlet sel -t -v "/MediaContainer/@version" | grep -qw $CUR_VERSION 
-      - docker kill DEV #Not really needed, but keeps things quick
+      - docker kill DEV # Not really needed, but keeps things quick
 
   publish:
     image: docker
@@ -37,14 +38,14 @@ pipeline:
     environment:
        - DOCKER_HOST=tcp://docker:2375
     commands:
-         #Grab just the version, not the hash. Used for tagging
+       # Grab just the version, not the hash. Used for tagging
        - export CUR_VERSION=$(cat .plex_version | cut -d \- -f1 )
        - echo $DOCKER_USER
        - docker tag devbuild adamant/plexmediaserver:latest
        - docker tag devbuild adamant/plexmediaserver:$CUR_VERSION
        - docker login -u $DOCKER_USER -p $DOCKER_PASS
        - docker push adamant/plexmediaserver
-       - echo "CONGRATS! SUCCESSFULLY BUILT PLEX VERSION "$CUR_VERSION
+       - echo "CONGRATS! SUCCESSFULLY BUILT PLEX VERSION $CUR_VERSION"
 
   downstream:
     image: plugins/downstream
