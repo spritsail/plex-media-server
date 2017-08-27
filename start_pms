@@ -42,4 +42,6 @@ if [ -f "$PIDFILE" ]; then
     rm -f "$PIDFILE"
 fi
 
+tail -F "$PLEX_MEDIA_SERVER_CONFIG_DIR/Logs/Plex Media Server.log" >/proc/1/fd/1 2>/dev/null &
+
 exec su-exec $UID:$GID "$PLEX_MEDIA_SERVER_HOME/Plex Media Server"
