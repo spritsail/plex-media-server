@@ -44,7 +44,7 @@ pipeline:
        - docker tag devbuild adamant/plexmediaserver:latest
        - docker tag devbuild adamant/plexmediaserver:$CUR_VERSION
        - docker login -u $DOCKER_USER -p $DOCKER_PASS
-       - docker push adamant/plexmediaserver
+       - docker push frebib/my-repo-now-bitch
        - echo "CONGRATS! SUCCESSFULLY BUILT PLEX VERSION $CUR_VERSION"
     when:
       event:  [ push, tag, deployment ]
