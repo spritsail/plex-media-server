@@ -46,3 +46,5 @@ pipeline:
        - docker login -u $DOCKER_USER -p $DOCKER_PASS
        - docker push adamant/plexmediaserver
        - echo "CONGRATS! SUCCESSFULLY BUILT PLEX VERSION $CUR_VERSION"
+    when:
+      event:  [ push, tag, deployment ]
