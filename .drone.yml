@@ -34,6 +34,8 @@ pipeline:
 
   publish:
     image: docker
+    when:
+      event: [push, tag, deployment]
     secrets: [ DOCKER_USER, DOCKER_PASS ]
     environment:
        - DOCKER_HOST=tcp://docker:2375
