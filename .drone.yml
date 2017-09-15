@@ -1,8 +1,3 @@
-services:
-  docker:
-    image: docker:dind
-    privileged: true
-
 pipeline:
   identify:
     image: docker
@@ -14,39 +9,38 @@ pipeline:
 
   build:
     image: docker
-    environment:
-      - DOCKER_HOST=tcp://docker:2375
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     commands:
-      - docker build -t devbuild .
+      - docker build --no-cache --pull -t plex-dev .
 
   test:
     image: docker
-    environment:
-      - DOCKER_HOST=tcp://docker:2375
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     commands:
       - apk add --no-cache curl xmlstarlet grep
       - export CUR_VERSION="$(cat .plex_version)"
-      - docker run --name=DEV -d -p 32400:32400 devbuild
+      - CON_NAME=$(docker run --rm -d -p 32400:32400 plex-dev)
       - sleep 10  # Wait for plex to start!
-      - docker logs DEV
-      - curl -sSL docker:32400/identity | tee /dev/stderr | xmlstarlet sel -t -v "/MediaContainer/@version" | grep -qw $CUR_VERSION 
-      - docker kill DEV # Not really needed, but keeps things quick
+      - docker logs $$CON_NAME
+      - curl -sSL $(docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $$CON_NAME):32400/identity | tee /dev/stderr | xmlstarlet sel -t -v "/MediaContainer/@version" | grep -qw $CUR_VERSION 
+      - docker kill $$CON_NAME # Not really needed, but keeps things quick
 
   publish:
     image: docker
     when:
       event: [push, tag, deployment]
     secrets: [ DOCKER_USER, DOCKER_PASS ]
-    environment:
-       - DOCKER_HOST=tcp://docker:2375
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     commands:
        # Grab just the version, not the hash. Used for tagging
        - export CUR_VERSION=$(cat .plex_version | cut -d \- -f1 )
        - echo $DOCKER_USER
-       - docker tag devbuild adamant/plexmediaserver:latest
-       - docker tag devbuild adamant/plexmediaserver:$CUR_VERSION
+       - docker tag plex-dev adamant/plexmediaserver:latest
+       - docker tag plex-dev adamant/plexmediaserver:$CUR_VERSION
        - docker login -u $DOCKER_USER -p $DOCKER_PASS
        - docker push adamant/plexmediaserver
+       - docker rmi adamant/plexmediaserver plex-dev
        - echo "CONGRATS! SUCCESSFULLY BUILT PLEX VERSION $CUR_VERSION"
-    when:
-      event:  [ push, tag, deployment ]
