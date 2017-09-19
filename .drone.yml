@@ -3,7 +3,6 @@ pipeline:
     image: docker
     commands:
       # Grab the current version, prevents race conditions
-      #### Pass this into the Dockerfile somehow?
       - apk add --no-cache openssl jq
       - wget -qO- https://adam-ant.co.uk/plex/pass-version.php | tee /dev/stderr | jq -r .release > .plex_version
 
@@ -12,7 +11,7 @@ pipeline:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     commands:
-      - docker build --no-cache --pull -t ppass-dev .
+      - docker build --no-cache --pull --build-arg PLEX_VER="$(cat .plex_version)" -t ppass-dev .
 
   test:
     image: docker
