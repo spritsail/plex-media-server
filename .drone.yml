@@ -24,9 +24,9 @@ pipeline:
       - CON_NAME=$(docker run --rm -d ppass-dev)
       - sleep 25  # Wait for plex to start!
       - docker logs $$CON_NAME
-      - curl -sSL $(docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $$CON_NAME):32400/identity \
-            | tee /dev/stderr \
-            | xmlstarlet sel -t -v "/MediaContainer/@version" \
+      - curl -sSL $(docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $$CON_NAME):32400/identity
+            | tee /dev/stderr
+            | xmlstarlet sel -t -v "/MediaContainer/@version"
             | grep -qw $CUR_VERSION
       - docker kill $$CON_NAME # Not really needed, but keeps things quick
 
