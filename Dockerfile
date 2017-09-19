@@ -8,7 +8,8 @@ WORKDIR /tmp
 
 ARG PLEX_VER
 
-RUN wget http://ftp.de.debian.org/debian/pool/main/g/gcc-6/libstdc++6_6.3.0-18_amd64.deb \
+RUN set -ax \
+ && wget http://ftp.de.debian.org/debian/pool/main/g/gcc-6/libstdc++6_6.3.0-18_amd64.deb \
  && wget http://ftp.de.debian.org/debian/pool/main/g/gcc-6/libgcc1_6.3.0-18_amd64.deb \
  && dpkg-deb -x libstdc++6*.deb . \
  && dpkg-deb -x libgcc1*.deb . \
