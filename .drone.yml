@@ -21,7 +21,7 @@ pipeline:
     commands:
       - apk add --no-cache curl xmlstarlet grep
       - export CUR_VERSION="$(cat .plex_version)"
-      - CON_NAME=$(docker run --rm -d -p 32400:32400 plex-dev)
+      - CON_NAME=$(docker run --rm -d plex-dev)
       - sleep 10  # Wait for plex to start!
       - docker logs $$CON_NAME
       - curl -sSL $(docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $$CON_NAME):32400/identity \
