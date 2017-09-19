@@ -32,7 +32,8 @@ pipeline:
   publish:
     image: docker
     when:
-      event: [push, tag, deployment]
+      branch: [ master, pass ]
+      event: [ push, tag, deployment ]
     secrets: [ DOCKER_USER, DOCKER_PASS ]
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
