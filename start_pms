@@ -18,7 +18,7 @@ then
     exit 1
   fi
 fi
-if su-exec $UID:$GID [ ! -w "$PLEX_MEDIA_SERVER_CONFIG_DIR" ]
+if su-exec -e [ ! -w "$PLEX_MEDIA_SERVER_CONFIG_DIR" ]
 then
   echo "ERROR: CANNOT WRITE IN $PLEX_MEDIA_SERVER_CONFIG_DIR, MAKE SURE I HAVE PERMISSION TO DO THAT!"
   exit 2
@@ -44,4 +44,4 @@ fi
 
 tail -F "$PLEX_MEDIA_SERVER_CONFIG_DIR/Logs/Plex Media Server.log" >/proc/1/fd/1 2>/dev/null &
 
-exec su-exec $UID:$GID "$PLEX_MEDIA_SERVER_HOME/Plex Media Server"
+exec su-exec -e "$PLEX_MEDIA_SERVER_HOME/Plex Media Server"
