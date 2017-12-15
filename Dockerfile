@@ -26,7 +26,7 @@ RUN set -ax \
  && chmod +x /usr/sbin/start_pms \
  && find /tmp -mindepth 1 -delete
 
-HEALTHCHECK --interval=30s --timeout=12s CMD wget -O /dev/null -T 10 -q localhost:32400/identity || exit 1
+HEALTHCHECK --interval=30s --timeout=12s CMD [ "wget", "-O", "/dev/null", "-T", "10", "-q", "localhost:32400/identity" ]
 
 WORKDIR /usr/lib/plexmediaserver
 
