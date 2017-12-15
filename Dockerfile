@@ -1,7 +1,7 @@
 FROM adamant/busybox:libressl
 MAINTAINER Adam Dodman <adam.dodman@gmx.com>
 
-ENV UID=900 GID=900
+ENV SUID=900 SGID=900
 ADD start_pms /usr/sbin/start_pms
 
 WORKDIR /tmp
