@@ -8,9 +8,12 @@ WORKDIR /tmp
 
 ARG PLEX_VER
 
+ARG LIBSTDCPP_VER=8-20180312-2
+ARG LIBGCC1_VER=8-20180312-2
+
 RUN set -ax \
- && wget http://ftp.de.debian.org/debian/pool/main/g/gcc-6/libstdc++6_6.3.0-18_amd64.deb \
- && wget http://ftp.de.debian.org/debian/pool/main/g/gcc-6/libgcc1_6.3.0-18_amd64.deb \
+ && wget http://ftp.de.debian.org/debian/pool/main/g/gcc-8/libstdc++6_${LIBSTDCPP_VER}_amd64.deb \
+ && wget http://ftp.de.debian.org/debian/pool/main/g/gcc-8/libgcc1_${LIBGCC1_VER}_amd64.deb \
  && dpkg-deb -x libstdc++6*.deb . \
  && dpkg-deb -x libgcc1*.deb . \
  # We only need the lib files, everything else is debian junk.
