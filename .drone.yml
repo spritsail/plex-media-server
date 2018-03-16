@@ -4,46 +4,52 @@ pipeline:
     commands:
       # Grab the current version, prevents race conditions
       - apk add --no-cache openssl jq
-      - wget -qO- https://adam-ant.co.uk/plex/version.php | tee /dev/stderr | jq -r .release > .plex_version
+      - wget -qO- https://spritsail.io/plex/release.php | tee .plex_release
+      - jq -r '.["url-deb"]'  .plex_release > .plex_url
+      - jq -r '.["version"]'  .plex_release > .plex_version
+      - jq -r '.["csum-deb"]' .plex_release > .plex_checksum
+      - jq -r '.["version"]'  .plex_release | cut -d- -f1 > .plex_tag
 
   build:
-    image: docker
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    commands:
-      - docker build --no-cache --pull --build-arg PLEX_VER="$(cat .plex_version)" -t plex-dev .
+    image: spritsail/docker-build
+    volumes: [ '/var/run/docker.sock:/var/run/docker.sock' ]
+    repo: plex-dev
+    build_args:
+      - 'PLEX_URL=%file: .plex_url'
+      - 'PLEX_VER=%file: .plex_version'
+      - 'PLEX_SHA=%file: .plex_checksum'
 
   test:
     image: docker
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+    volumes: [ '/var/run/docker.sock:/var/run/docker.sock' ]
     commands:
       - apk add --no-cache curl xmlstarlet grep
       - export CUR_VERSION="$(cat .plex_version)"
       - CON_NAME=$(docker run --rm -d plex-dev)
       - timeout -t 15 docker logs $$CON_NAME &
       - sleep 10  # Wait for plex to start!
-      - curl -sSL $(docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $$CON_NAME):32400/identity
+      - curl -sSL  --retry-max-time 30 --max-time 5 --retry 10 --retry-delay 5
+          $(docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $$CON_NAME):32400/identity
             | tee /dev/stderr
             | xmlstarlet sel -t -v "/MediaContainer/@version"
             | grep -qw $CUR_VERSION
       - docker kill $$CON_NAME
 
   publish:
-    image: docker
-    when:
-      branch: [ master, pass ]
-      event: [ push, tag, deployment ]
-    secrets: [ DOCKER_USER, DOCKER_PASS ]
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    commands:
-       # Grab just the version, not the hash. Used for tagging
-       - export CUR_VERSION=$(cat .plex_version | cut -d \- -f1 )
-       - echo $DOCKER_USER
-       - docker tag plex-dev adamant/plexmediaserver:latest
-       - docker tag plex-dev adamant/plexmediaserver:$CUR_VERSION
-       - docker login -u $DOCKER_USER -p $DOCKER_PASS
-       - docker push adamant/plexmediaserver
-       - docker rmi adamant/plexmediaserver plex-dev
-       - echo "CONGRATS! SUCCESSFULLY BUILT PLEX VERSION $CUR_VERSION"
+    image: spritsail/docker-publish
+    volumes: [ '/var/run/docker.sock:/var/run/docker.sock' ]
+    secrets: [ docker_username, docker_password, microbadger_token ]
+    when: { branch: [ master, pass ], event: [ push, tag, deployment ] }
+    from: plex-dev
+    repo: spritsail/plex-media-server
+    tags:
+      - 'latest'
+      - '%fileauto: .plex_tag'
+
+  notify:
+    image: appleboy/drone-telegram
+    when: { status: [ success, failure ] }
+    secrets: [ telegram_token, telegram_to ]
+    message: |
+      *{{repo.owner}}/{{repo.name}} [{{commit.branch}}]*: Build #{{build.number}}: *{{uppercase build.status}}*
+      {{build.link}}

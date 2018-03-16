@@ -1,12 +1,19 @@
-[hub]: https://hub.docker.com/r/adamant/plexmediaserver
+[hub]: https://hub.docker.com/r/spritsail/plex-media-server
+[git]: https://github.com/spritsail/plex-media-server
+[drone]: https://drone.spritsail.io/spritsail/plex-media-server
 
-# [adamant/plexmediaserver][hub]
+# [spritsail/plex-media-server][hub]
 
-[![](https://images.microbadger.com/badges/image/adamant/plexmediaserver.svg)](https://microbadger.com/images/adamant/plexmediaserver) [![Docker Pulls](https://img.shields.io/docker/pulls/adamant/plexmediaserver.svg)][hub] [![Docker Stars](https://img.shields.io/docker/stars/adamant/plexmediaserver.svg)][hub] [![Build Status](https://drone.adam-ant.co.uk/api/badges/Adam-Ant/docker-plex-tiny/status.svg)](https://drone.adam-ant.co.uk/Adam-Ant/docker-plex-tiny)
+[![](https://images.microbadger.com/badges/image/spritsail/plex-media-server.svg)](https://microbadger.com/images/spritsail/plex-media-server)
+[![Latest Version](https://images.microbadger.com/badges/version/spritsail/plex-media-server.svg)][hub]
+[![Git Commit](https://images.microbadger.com/badges/commit/spritsail/plex-media-server.svg)][git]
+[![Docker Pulls](https://img.shields.io/docker/pulls/spritsail/plex-media-server.svg)][hub]
+[![Docker Stars](https://img.shields.io/docker/stars/spritsail/plex-media-server.svg)][hub]
+[![Build Status](https://drone.spritsail.io/api/badges/spritsail/plex-media-server/status.svg)][drone]
 
-The smallest* Plex Media Server docker image, built on [busybox](https://hub.docker.com/_/busybox/) with glibc and packages from the debian repos. The container contains a bare minimum glibc dependency tree, with most of the crap removed.
+The _smallest*_ Plex Media Server docker image, built on barebones [spritsail/busybox](https://hub.docker.com/spritsail/busybox/) with glibc and libraries from source. The container contains a bare minimum glibc dependency tree, with most of the useless crap removed, resulting in the smallest container possible whilst maintaining full functionality.
 
-You can find out more about the [adamant/busybox](https://hub.docker.com/r/adamant/busybox) base image [here](https://github.com/Adam-Ant/docker-busybox-base), with the "package manager" scripts around dpkg
+You can find out more about the [spritsail/busybox](https://hub.docker.com/r/spritsail/busybox) base image [here](https://github.com/spritsail/busybox)
 
 _*last we checked_
 
