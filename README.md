@@ -1,10 +1,11 @@
 [hub]: https://hub.docker.com/r/spritsail/plex-media-server
 [git]: https://github.com/spritsail/plex-media-server
 [drone]: https://drone.spritsail.io/spritsail/plex-media-server
+[mbdg]: https://microbadger.com/images/spritsail/plex-media-server
 
 # [spritsail/plex-media-server][hub]
 
-[![](https://images.microbadger.com/badges/image/spritsail/plex-media-server.svg)](https://microbadger.com/images/spritsail/plex-media-server)
+[![](https://images.microbadger.com/badges/image/spritsail/plex-media-server.svg)][mbdg]
 [![Latest Version](https://images.microbadger.com/badges/version/spritsail/plex-media-server.svg)][hub]
 [![Git Commit](https://images.microbadger.com/badges/commit/spritsail/plex-media-server.svg)][git]
 [![Docker Pulls](https://img.shields.io/docker/pulls/spritsail/plex-media-server.svg)][hub]
