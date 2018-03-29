@@ -3,8 +3,8 @@ FROM spritsail/busybox:libressl
 ARG PLEX_VER=latest
 ARG PLEX_URL
 ARG PLEX_SHA
-ARG LIBSTDCPP_VER=8-20180312-2
-ARG LIBGCC1_VER=8-20180312-2
+ARG LIBSTDCPP_VER=6.3.0-18+deb9u1
+ARG LIBGCC1_VER=6.3.0-18+deb9u1
 
 LABEL maintainer="Spritsail <plex@spritsail.io>" \
       org.label-schema.vendor="Spritsail" \
@@ -19,8 +19,8 @@ ADD start_pms /usr/sbin/start_pms
 WORKDIR /tmp
 
 RUN chmod +x /usr/sbin/start_pms \
- && wget http://ftp.de.debian.org/debian/pool/main/g/gcc-8/libstdc++6_${LIBSTDCPP_VER}_amd64.deb \
- && wget http://ftp.de.debian.org/debian/pool/main/g/gcc-8/libgcc1_${LIBGCC1_VER}_amd64.deb \
+ && wget http://ftp.de.debian.org/debian/pool/main/g/gcc-${LIBSTDCPP_VER:0:1}/libstdc++6_${LIBSTDCPP_VER}_amd64.deb \
+ && wget http://ftp.de.debian.org/debian/pool/main/g/gcc-${LIBGCC1_VER:0:1}/libgcc1_${LIBGCC1_VER}_amd64.deb \
  && dpkg-deb -x libstdc++6*.deb . \
  && dpkg-deb -x libgcc1*.deb . \
  # We only need the lib files, everything else is debian junk.
