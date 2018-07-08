@@ -1,30 +1,21 @@
 pipeline:
-  identify:
-    image: docker
-    commands:
-      # Grab the current version, prevents race conditions
-      - apk add --no-cache openssl jq
-      - wget -qO- https://spritsail.io/plex/release.php | tee .plex_release
-      - jq -r '.["url-deb"]'  .plex_release > .plex_url
-      - jq -r '.["version"]'  .plex_release > .plex_version
-      - jq -r '.["csum-deb"]' .plex_release > .plex_checksum
-      - jq -r '.["version"]'  .plex_release | cut -d- -f1 > .plex_tag
-
   build:
     image: spritsail/docker-build
     volumes: [ '/var/run/docker.sock:/var/run/docker.sock' ]
     repo: plex-dev
-    build_args:
-      - 'PLEX_URL=%file: .plex_url'
-      - 'PLEX_VER=%file: .plex_version'
-      - 'PLEX_SHA=%file: .plex_checksum'
+
+  tag:
+    image: docker
+    volumes: [ '/var/run/docker.sock:/var/run/docker.sock' ]
+    commands:
+      -  docker inspect -f '{{ index .Config.Labels "io.spritsail.version.plex" }}' plex-dev | cut -d- -f1 > .plex_tag
 
   test:
     image: docker
     volumes: [ '/var/run/docker.sock:/var/run/docker.sock' ]
     commands:
       - apk add --no-cache curl xmlstarlet grep
-      - export CUR_VERSION="$(cat .plex_version)"
+      - export CUR_VERSION="$(cat .plex_tag)"
       - CON_NAME=$(docker run --rm -d plex-dev)
       - timeout -t 15 docker logs $$CON_NAME &
       - sleep 10  # Wait for plex to start!
