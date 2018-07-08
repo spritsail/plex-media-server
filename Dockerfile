@@ -1,4 +1,4 @@
-FROM spritsail/busybox:libressl
+FROM spritsail/libressl
 
 ARG PLEX_VER=latest
 ARG PLEX_URL
