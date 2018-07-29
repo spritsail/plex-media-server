@@ -12,7 +12,7 @@ ARG LIBGCC1_VER
 
 WORKDIR /tmp
 
-RUN mkdir -p /output/usr/lib /output/{lib, sbin}
+RUN mkdir -p /output/usr/lib
 
 RUN curl -fsSL -o libstdcpp.deb http://ftp.de.debian.org/debian/pool/main/g/gcc-${LIBSTDCPP_VER:0:1}/libstdc++6_${LIBSTDCPP_VER}_amd64.deb \
  && curl -fsSL -o libgcc1.deb http://ftp.de.debian.org/debian/pool/main/g/gcc-${LIBGCC1_VER:0:1}/libgcc1_${LIBGCC1_VER}_amd64.deb \
