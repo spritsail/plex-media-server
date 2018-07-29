@@ -4,18 +4,12 @@ pipeline:
     volumes: [ '/var/run/docker.sock:/var/run/docker.sock' ]
     repo: plex-dev
 
-  tag:
-    image: docker
-    volumes: [ '/var/run/docker.sock:/var/run/docker.sock' ]
-    commands:
-      -  docker inspect -f '{{ index .Config.Labels "io.spritsail.version.plex" }}' plex-dev | cut -d- -f1 > .plex_tag
-
   test:
     image: docker
     volumes: [ '/var/run/docker.sock:/var/run/docker.sock' ]
     commands:
       - apk add --no-cache curl xmlstarlet grep
-      - export CUR_VERSION="$(cat .plex_tag)"
+      - export CUR_VERSION="$(docker inspect -f '{{ index .Config.Labels "io.spritsail.version.plex" }}' plex-dev | cut -d- -f1)"
       - CON_NAME=$(docker run --rm -d plex-dev)
       - timeout -t 15 docker logs $$CON_NAME &
       - sleep 10  # Wait for plex to start!
@@ -35,7 +29,7 @@ pipeline:
     repo: spritsail/plex-media-server
     tags:
       - 'latest'
-      - '%fileauto: .plex_tag'
+      - '%labelauto: io.spritsail.version.plex'
 
   notify:
     image: spritsail/notify
