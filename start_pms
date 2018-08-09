@@ -7,31 +7,27 @@ export PLEX_MEDIA_SERVER_MAX_STACK_SIZE="${PLEX_MEDIA_SERVER_MAX_STACK_SIZE:-300
 export PLEX_MEDIA_SERVER_TMPDIR="${PLEX_MEDIA_SERVER_TMPDIR:-/tmp}"
 export PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR="${PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR:-/config}"
 export PLEX_MEDIA_SERVER_CONFIG_DIR="${PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR}/Plex Media Server"
+export TMPDIR="${PLEX_MEDIA_SERVER_TMPDIR}"
 
-if [ ! -d "$PLEX_MEDIA_SERVER_CONFIG_DIR" ]
-then
+if [ ! -d "$PLEX_MEDIA_SERVER_CONFIG_DIR" ]; then
   mkdir -p "$PLEX_MEDIA_SERVER_CONFIG_DIR" && \
   chown $SUID:$SGID "$PLEX_MEDIA_SERVER_CONFIG_DIR"
-  if [ ! $? -eq 0 ]
-  then
+  if [ ! $? -eq 0 ]; then
     echo "WARNING COULDN'T CREATE $PLEX_MEDIA_SERVER_CONFIG_DIR, MAKE SURE I HAVE PERMISSON TO DO THAT!"
     exit 1
   fi
 fi
-if su-exec -e [ ! -w "$PLEX_MEDIA_SERVER_CONFIG_DIR" ]
-then
+
+if su-exec -e [ ! -w "$PLEX_MEDIA_SERVER_CONFIG_DIR" ]; then
   echo "ERROR: CANNOT WRITE IN $PLEX_MEDIA_SERVER_CONFIG_DIR, MAKE SURE I HAVE PERMISSION TO DO THAT!"
   exit 2
 fi
-if [ ! -e "$PLEX_MEDIA_SERVER_CONFIG_DIR/Preferences.xml" ];
-then
+
+if [ ! -e "$PLEX_MEDIA_SERVER_CONFIG_DIR/Preferences.xml" ]; then
     # Create a default config file allowing external access
     echo -e '<?xml version="1.0" encoding="utf-8"?>\n<Preferences disableRemoteSecurity="1" />' \
         >> "$PLEX_MEDIA_SERVER_CONFIG_DIR/Preferences.xml"
 fi
-
-export LD_LIBRARY_PATH="${PLEX_MEDIA_SERVER_HOME}:$LD_LIBRARY_PATH"
-export TMPDIR="${PLEX_MEDIA_SERVER_TMPDIR}"
 
 # Allow Plex group to write to tmpdir
 chgrp $SGID "$TMPDIR"
