@@ -4,6 +4,13 @@ pipeline:
     volumes: [ '/var/run/docker.sock:/var/run/docker.sock' ]
     repo: plex-dev
 
+  test-bin:
+    image: docker
+    volumes: [ '/var/run/docker.sock:/var/run/docker.sock' ]
+    commands:
+      - docker run --rm plex-dev curl --version
+      - docker run --rm plex-dev xmlstarlet --version
+
   test:
     image: spritsail/docker-test
     volumes: [ '/var/run/docker.sock:/var/run/docker.sock' ]
@@ -19,7 +26,7 @@ pipeline:
     image: spritsail/docker-publish
     volumes: [ '/var/run/docker.sock:/var/run/docker.sock' ]
     secrets: [ docker_username, docker_password, microbadger_token ]
-    when: { branch: [ master, pass ], event: [ push, tag, deployment ] }
+    when: { branch: [ master ], event: [ push, tag, deployment ] }
     from: plex-dev
     repo: spritsail/plex-media-server
     tags:
