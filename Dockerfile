@@ -27,7 +27,14 @@ WORKDIR /tmp/libxml2
 RUN git clone https://gitlab.gnome.org/GNOME/libxml2.git --branch $LIBXML2_VER --depth 1 . \
  && ./autogen.sh \
         --prefix=/usr \
-        --without-debug \
+        --without-catalog \
+        --without-docbook \
+        --without-ftp \
+        --without-http \
+        --without-iconv \
+        --without-iso8859x \
+        --without-legacy \
+        --without-modules \
         --without-python \
  && make \
  && make DESTDIR=/prefix install
@@ -38,8 +45,8 @@ RUN git clone https://gitlab.gnome.org/GNOME/libxslt.git --branch $LIBXSLT_VER -
  && ./autogen.sh \
         --prefix=/usr \
         --with-libxml-src="../libxml2" \
-        --without-debug \
-        --without-debugger \
+        --without-crypto \
+        --without-plugins \
         --without-python \
  && make \
  && make DESTDIR=/prefix install
