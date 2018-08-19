@@ -85,6 +85,7 @@ RUN git clone https://github.com/curl/curl.git --branch $CURL_VER --depth 1 . \
         --disable-dict \
         --disable-gopher \
         --disable-imap \
+        --disable-libcurl-option \
         --disable-ldap \
         --disable-ldaps \
         --disable-manual \
