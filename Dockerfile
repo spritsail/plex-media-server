@@ -11,6 +11,8 @@ ARG PLEX_VER
 ARG PLEX_SHA
 ARG LIBSTDCPP_VER
 ARG LIBGCC1_VER
+ARG LIBXML2_VER=v2.9.8
+ARG LIBXSLT_VER=v1.1.32
 ARG XMLSTAR_VER
 ARG LIBRE_VER=2.7.4
 ARG CURL_VER
@@ -18,11 +20,32 @@ ARG CURL_VER
 ARG MAKEFLAGS=-j4
 
 RUN apt-get -y update \
- && apt-get -y install libxml2-dev libxslt1-dev zlib1g-dev
+ && apt-get -y install zlib1g-dev
 
-ADD *.patch /tmp
+# Download and build libxml2
+WORKDIR /tmp/libxml2
+RUN git clone https://gitlab.gnome.org/GNOME/libxml2.git --branch $LIBXML2_VER --depth 1 . \
+ && ./autogen.sh \
+        --prefix=/usr \
+        --without-debug \
+        --without-python \
+ && make \
+ && make DESTDIR=/prefix install
+
+# Download and build libxslt
+WORKDIR /tmp/libxslt
+RUN git clone https://gitlab.gnome.org/GNOME/libxslt.git --branch $LIBXSLT_VER --depth 1 . \
+ && ./autogen.sh \
+        --prefix=/usr \
+        --with-libxml-src="../libxml2" \
+        --without-debug \
+        --without-debugger \
+        --without-python \
+ && make \
+ && make DESTDIR=/prefix install
 
 # Download and build xmlstarlet
+ADD *.patch /tmp
 WORKDIR /tmp/xmlstarlet
 RUN git clone git://git.code.sf.net/p/xmlstar/code --branch $XMLSTAR_VER --depth 1 . \
  && git apply /tmp/xmlstarlet*.patch \
@@ -30,6 +53,8 @@ RUN git clone git://git.code.sf.net/p/xmlstar/code --branch $XMLSTAR_VER --depth
  && ./configure \
         --prefix=/usr \
         --disable-build-docs \
+        --with-libxml-prefix=/prefix/usr \
+        --with-libxslt-prefix=/prefix/usr \
  && make \
  && make DESTDIR=/prefix install
 
@@ -97,6 +122,8 @@ RUN curl -fsSL http://ftp.de.debian.org/debian/pool/main/g/gcc-${LIBSTDCPP_VER:0
         libcrypto.so.1.0.0 \
         libcurl.so.4 \
         libssl.so.1.0.0 \
+        libxml2.so.2 \
+        libxslt.so.1 \
     # Place shared libraries in usr/lib so they can be actually shared
  && mv *.so* ../
 
