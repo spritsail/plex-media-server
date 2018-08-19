@@ -52,7 +52,7 @@ RUN git clone https://gitlab.gnome.org/GNOME/libxslt.git --branch $LIBXSLT_VER -
  && make DESTDIR=/prefix install
 
 # Download and build xmlstarlet
-ADD *.patch /tmp
+ADD xmlstarlet-*.patch /tmp
 WORKDIR /tmp/xmlstarlet
 RUN git clone git://git.code.sf.net/p/xmlstar/code --branch $XMLSTAR_VER --depth 1 . \
  && git apply /tmp/xmlstarlet*.patch \
