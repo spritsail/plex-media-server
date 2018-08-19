@@ -147,8 +147,9 @@ RUN find -exec sh -c 'file "{}" | grep -q ELF && strip --strip-debug "{}"' \; \
  && mv usr/bin/curl /output/usr/bin \
  && mv usr/bin/xml /output/usr/bin/xmlstarlet
 
-ADD start_pms /output/usr/sbin/start_pms
-RUN chmod +x /output/usr/sbin/start_pms
+ADD entrypoint /output/usr/local/bin/
+ADD *.sh /output/usr/local/bin/
+RUN chmod +x /output/usr/local/bin/*
 
 #=========================
 
@@ -172,16 +173,26 @@ LABEL maintainer="Spritsail <plex@spritsail.io>" \
       io.spritsail.version.libstdcpp=${LIBSTDCPP_VER} \
       io.spritsail.version.xmlstarlet=${XMLSTAR_VER}
 
-ENV SUID=900 SGID=900
+WORKDIR /usr/lib/plexmediaserver
 
 COPY --from=builder /output/ /
+
+ENV SUID=900 SGID=900 \
+    PLEX_MEDIA_SERVER_MAX_PLUGIN_PROCS="6" \
+    PLEX_MEDIA_SERVER_MAX_STACK_SIZE="3000" \
+    PLEX_MEDIA_SERVER_TMPDIR="/tmp" \
+    PLEX_MEDIA_SERVER_HOME="/usr/lib/plexmediaserver" \
+    PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR="/var/lib/plexmediaserver"
 
 HEALTHCHECK --interval=10s --timeout=5s \
     CMD [ "wget", "-O", "/dev/null", "-T", "10", "-q", "localhost:32400/identity" ]
 
-WORKDIR /usr/lib/plexmediaserver
-
 EXPOSE 32400
 
+VOLUME ["/config", "/transcode"]
+
+RUN mkdir -p "$PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR" \
+ && ln -sfv /config "$PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR/Plex Media Server"
+
 ENTRYPOINT ["/sbin/tini", "--"]
-CMD ["/usr/sbin/start_pms"]
+CMD ["/usr/local/bin/entrypoint"]

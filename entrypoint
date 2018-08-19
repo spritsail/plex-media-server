@@ -1,0 +1,28 @@
+#!/bin/sh
+set -e
+
+if su-exec -e [ ! -w "/config" ]; then
+    2>&1 echo "Warning: No permission to write in '/config' directory."
+    2>&1 echo "         Correcting permissions to prevent a crash"
+    2>&1 echo
+    (
+    set -x
+    chown $SUID:$SGID /config
+    chmod o+rw /config
+    )
+fi
+
+exec su-exec -e sh <<EOF
+# Generate a default configuration, including some user-specified values
+if [ ! -e "/config/Preferences.xml" ]; then
+    gen-config.sh
+fi
+
+# Duplicate the Plex logs to stdout (docker logs)
+tail -Fn 0 "/config/Logs/Plex Media Server.log" 2>/dev/null &
+
+# Use a random pidfile
+export PLEX_MEDIA_SERVER_PIDFILE="\$(mktemp -ut pms-pid.XXXXXX)"
+
+exec "\$PLEX_MEDIA_SERVER_HOME/Plex Media Server"
+EOF
