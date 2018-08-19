@@ -1,0 +1,35 @@
+diff --git a/Makefile.am b/Makefile.am
+index 1f3ba33..56a36b4 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -75,11 +75,6 @@ $(generated_usage_sources) : usage2c.awk
+ # doc
+ include doc/doc.mk
+ 
+-man_MANS = $(manpage)
+-dist_doc_DATA = $(userguide_gen) doc/html.css $(txtguide)
+-EXTRA_DIST += $(manpage_src) $(userguide_src) $(txtguide_src)
+-EXTRA_DIST += $(buildfiles_docs) $(manpage)
+-
+ 
+ CLEANFILES = version.h $(generated_usage_sources)
+ MAINTAINERCLEANFILES = $(manpage) $(userguide_gen) $(txtguide)
+diff --git a/doc/doc.mk b/doc/doc.mk
+index bde1e0e..d4633eb 100644
+--- a/doc/doc.mk
++++ b/doc/doc.mk
+@@ -28,6 +28,11 @@ EDIT_XML = $(XSLTPROC) \
+ 
+ if BUILD_DOCS
+ 
++man_MANS = $(manpage)
++dist_doc_DATA = $(userguide_gen) doc/html.css $(txtguide)
++EXTRA_DIST += $(manpage_src) $(userguide_src) $(txtguide_src)
++EXTRA_DIST += $(buildfiles_docs) $(manpage)
++
+ .xml.html:
+ 	$(V_DOCBOOK)$(EDIT_XML) $< | $(XSLTPROC) $(DOCBOOK_PARAMS) \
+   --stringparam html.stylesheet html.css \
+-- 
+2.18.0
+
