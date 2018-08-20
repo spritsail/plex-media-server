@@ -1,7 +1,8 @@
 #!/bin/sh
 set -e
 
-PREF_FILE="${1:-/config/Preferences.xml}"
+CONFIG_DIR="${CONFIG_DIR:-/config}"
+PREF_FILE="${PREF_FILE:-"$CONFIG_DIR/Preferences.xml"}"
 
 getPref() {
     xmlstarlet sel -T -t -m "/Preferences" -v "@$1" -n "${PREF_FILE}"
@@ -16,7 +17,7 @@ setPref() {
 }
 
 # Create a default config file allowing external access
-echo -e $'<?xml version="1.0" encoding="utf-8"?>\n<Preferences />' > "/config/Preferences.xml"
+echo -e $'<?xml version="1.0" encoding="utf-8"?>\n<Preferences />' > "${PREF_FILE}"
 
 # Enforced defaults. These can be changed manually afterwards.
 setPref "AcceptedEULA" "1"
