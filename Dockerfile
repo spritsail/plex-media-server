@@ -132,6 +132,10 @@ RUN curl -fsSL http://ftp.de.debian.org/debian/pool/main/g/gcc-${LIBSTDCPP_VER:0
         libssl.so.1.0.0 \
         libxml2.so.2 \
         libxslt.so.1 \
+    # I have no idea if these fonts are required however they take up ~35MB of space and ideally we could do without them.
+        Resources/Fonts/NotoNaskh* \
+        Resources/Fonts/NotoSans* \
+        Resources/Fonts/OpenSans* \
     # Place shared libraries in usr/lib so they can be actually shared
  && mv *.so* ../
 
