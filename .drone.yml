@@ -32,7 +32,7 @@ pipeline:
     repo: spritsail/plex-media-server
     tags:
       - 'latest'
-      - '%labelauto: io.spritsail.version.plex'
+      - '%label io.spritsail.version.plex | %auto'
 
   notify:
     image: spritsail/notify
