@@ -32,7 +32,7 @@ pipeline:
     repo: spritsail/plex-media-server
     tags:
       - 'plexpass'
-      - '%labelauto: %prefix: plexpass% io.spritsail.version.plex'
+      - '%label io.spritsail.version.plex | %auto | %prefix plexpass'
 
   notify:
     image: spritsail/notify
