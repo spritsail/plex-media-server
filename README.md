@@ -1,17 +1,17 @@
 [hub]: https://hub.docker.com/r/spritsail/plex-media-server
-[git]: https://github.com/spritsail/plex-media-server
+[git]: https://github.com/spritsail/plex-media-server/tree/nofonts
 [drone]: https://drone.spritsail.io/spritsail/plex-media-server
-[mbdg]: https://microbadger.com/images/spritsail/plex-media-server
+[mbdg]: https://microbadger.com/images/spritsail/plex-media-server:nofonts
 
 # [spritsail/plex-media-server][hub]
 
-[![Layers](https://images.microbadger.com/badges/image/spritsail/plex-media-server.svg)][mbdg]
-[![Latest Version](https://images.microbadger.com/badges/version/spritsail/plex-media-server.svg)][hub]
-[![Git Commit](https://images.microbadger.com/badges/commit/spritsail/plex-media-server.svg)][git]
+[![Layers](https://images.microbadger.com/badges/image/spritsail/plex-media-server:nofonts.svg)][mbdg]
+[![Latest Version](https://images.microbadger.com/badges/version/spritsail/plex-media-server:nofonts.svg)][hub]
+[![Git Commit](https://images.microbadger.com/badges/commit/spritsail/plex-media-server:nofonts.svg)][git]
 [![Docker Pulls](https://img.shields.io/docker/pulls/spritsail/plex-media-server.svg)][hub]
 [![Docker Stars](https://img.shields.io/docker/stars/spritsail/plex-media-server.svg)][hub]
-[![Build Status](https://drone.spritsail.io/api/badges/spritsail/plex-media-server/status.svg)][drone]
-[![Last Build](https://api.spritsail.io/badge/lastbuild/spritsail/plex-media-server:latest)][drone]
+[![Build Status](https://drone.spritsail.io/api/badges/spritsail/plex-media-server/status.svg?branch=nofonts)][drone]
+[![Last Build](https://api.spritsail.io/badge/lastbuild/spritsail/plex-media-server:nofonts)][drone]
 
 The _smallest*_ Plex Media Server docker image, built on barebones [spritsail/busybox](https://hub.docker.com/spritsail/busybox/) with glibc and libraries built from source. The container hosts a fully featured Plex Media Server, with almost all of the useless crap removed, resulting in the smallest container possible whilst maintaining full functionality.
 
@@ -39,7 +39,7 @@ docker run -dt \
     -v /config/plex:/config \
     -v /transcode:/transcode \
     -v /media:/media \
-    spritsail/plex-media-server
+    spritsail/plex-media-server:nofonts
 ```
 
 Finally, navigate to [app.plex.tv/desktop](https://app.plex.tv/desktop) or [your-ip:32400/web](http://localhost:32400/web) and you're done!

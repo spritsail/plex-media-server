@@ -2,12 +2,12 @@ pipeline:
   build:
     image: spritsail/docker-build
     volumes: [ '/var/run/docker.sock:/var/run/docker.sock' ]
-    repo: plex-dev
+    repo: plex-nofonts-dev
 
   test-bin:
     image: spritsail/docker-test
     volumes: [ '/var/run/docker.sock:/var/run/docker.sock' ]
-    repo: plex-dev
+    repo: plex-nofonts-dev
     run: |
       curl --version &&
       xmlstarlet --version
@@ -15,7 +15,7 @@ pipeline:
   test:
     image: spritsail/docker-test
     volumes: [ '/var/run/docker.sock:/var/run/docker.sock' ]
-    repo: plex-dev
+    repo: plex-nofonts-dev
     curl: ':32400/identity'
     delay: 5
     retry: 10
@@ -27,12 +27,11 @@ pipeline:
     image: spritsail/docker-publish
     volumes: [ '/var/run/docker.sock:/var/run/docker.sock' ]
     secrets: [ docker_username, docker_password, microbadger_token ]
-    when: { branch: [ master ], event: [ push, tag, deployment ] }
-    from: plex-dev
+    when: { branch: [ nofonts ], event: [ push, tag, deployment ] }
+    from: plex-nofonts-dev
     repo: spritsail/plex-media-server
     tags:
-      - 'latest'
-      - '%labelauto: io.spritsail.version.plex'
+      - '%labelauto: %prefix: nofonts% io.spritsail.version.plex'
 
   notify:
     image: spritsail/notify
