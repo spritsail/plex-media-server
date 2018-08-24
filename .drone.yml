@@ -5,11 +5,12 @@ pipeline:
     repo: ppass-dev
 
   test-bin:
-    image: docker
+    image: spritsail/docker-test
     volumes: [ '/var/run/docker.sock:/var/run/docker.sock' ]
-    commands:
-      - docker run --rm ppass-dev curl --version
-      - docker run --rm ppass-dev xmlstarlet --version
+    repo: ppass-dev
+    run: |
+      curl --version &&
+      xmlstarlet --version
 
   test:
     image: spritsail/docker-test
