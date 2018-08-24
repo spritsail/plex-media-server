@@ -5,11 +5,12 @@ pipeline:
     repo: plex-dev
 
   test-bin:
-    image: docker
+    image: spritsail/docker-test
     volumes: [ '/var/run/docker.sock:/var/run/docker.sock' ]
-    commands:
-      - docker run --rm plex-dev curl --version
-      - docker run --rm plex-dev xmlstarlet --version
+    repo: plex-dev
+    run: |
+      curl --version &&
+      xmlstarlet --version
 
   test:
     image: spritsail/docker-test
