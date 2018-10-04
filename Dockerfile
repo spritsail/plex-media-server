@@ -17,8 +17,6 @@ ARG XMLSTAR_VER
 ARG LIBRE_VER=2.7.4
 ARG CURL_VER
 
-ARG MAKEFLAGS=-j4
-
 RUN apt-get -y update \
  && apt-get -y install zlib1g-dev
 
@@ -36,8 +34,8 @@ RUN git clone https://gitlab.gnome.org/GNOME/libxml2.git --branch $LIBXML2_VER -
         --without-legacy \
         --without-modules \
         --without-python \
- && make \
- && make DESTDIR=/prefix install
+ && make -j$(nproc) \
+ && make -j$(nproc) DESTDIR=/prefix install
 
 # Download and build libxslt
 WORKDIR /tmp/libxslt
@@ -48,8 +46,8 @@ RUN git clone https://gitlab.gnome.org/GNOME/libxslt.git --branch $LIBXSLT_VER -
         --without-crypto \
         --without-plugins \
         --without-python \
- && make \
- && make DESTDIR=/prefix install
+ && make -j$(nproc) \
+ && make -j$(nproc) DESTDIR=/prefix install
 
 # Download and build xmlstarlet
 ADD xmlstarlet-*.patch /tmp
@@ -62,8 +60,8 @@ RUN git clone git://git.code.sf.net/p/xmlstar/code --branch $XMLSTAR_VER --depth
         --disable-build-docs \
         --with-libxml-prefix=/prefix/usr \
         --with-libxslt-prefix=/prefix/usr \
- && make \
- && make DESTDIR=/prefix install
+ && make -j$(nproc) \
+ && make -j$(nproc) DESTDIR=/prefix install
 
 # Download and build LibreSSL as a cURL dependency
 WORKDIR /tmp/libressl
@@ -71,7 +69,7 @@ RUN curl -sSL https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-${LIBRE_VER}
         | tar xz --strip-components=1 \
     # Install to the default system directories so cURL can find it
  && ./configure --prefix=/usr \
- && make install
+ && make -j$(nproc) install
 
 # Download and build curl
 WORKDIR /tmp/curl
@@ -111,8 +109,8 @@ RUN git clone https://github.com/curl/curl.git --branch $CURL_VER --depth 1 . \
         --without-libpsl \
         --without-librtmp \
         --without-winidn \
- && make \
- && make DESTDIR=/prefix install
+ && make -j$(nproc) \
+ && make -j$(nproc) DESTDIR=/prefix install
 
 WORKDIR /prefix
 
