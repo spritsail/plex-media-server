@@ -44,9 +44,17 @@ export PREF_FILE="$CONFIG_DIR/Preferences.xml"
 
 exec su-exec -e sh <<EOF
 
+source plex-util.sh
+
 # Generate a default configuration on first run, including some user-specified values
 if [ ! -e "\$PREF_FILE" ]; then
     source gen-config.sh
+fi
+
+# Always attempt to claim an unclaimed server in case it was signed out
+token="\$(getPref "PlexOnlineToken")"
+if [ ! -z "\${PLEX_CLAIM}" ] && [ -z "\${token}" ]; then
+    claim-server.sh --load-client-id --save
 fi
 
 # Duplicate the Plex logs to stdout (docker logs)
