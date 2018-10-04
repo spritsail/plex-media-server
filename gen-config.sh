@@ -1,20 +1,8 @@
 #!/bin/sh
 set -e
 
-CONFIG_DIR="${CONFIG_DIR:-/config}"
-PREF_FILE="${PREF_FILE:-"$CONFIG_DIR/Preferences.xml"}"
-
-getPref() {
-    xmlstarlet sel -T -t -m "/Preferences" -v "@$1" -n "${PREF_FILE}"
-}
-setPref() {
-    count="$(xmlstarlet sel -t -v "count(/Preferences/@$1)" "${PREF_FILE}")"
-    if [ $(($count + 0)) -gt 0 ]; then
-        xmlstarlet ed --inplace --update "/Preferences/@$1" -v "$2" "${PREF_FILE}" 2>/dev/null
-    else
-        xmlstarlet ed --inplace --insert "/Preferences"  --type attr -n "$1" -v "$2" "${PREF_FILE}" 2>/dev/null
-    fi
-}
+# Contains getPref/setPref and PREF_FILE vars
+source plex-util.sh
 
 # Create a default config file allowing external access
 echo -e $'<?xml version="1.0" encoding="utf-8"?>\n<Preferences />' > "${PREF_FILE}"
@@ -38,27 +26,9 @@ if [ -z "${clientId}" ]; then
     setPref "ProcessedMachineIdentifier" "${clientId}"
 fi
 
-# Get server token and only turn claim token into server token if we have former but not latter.
-token="$(getPref "PlexOnlineToken")"
-if [ ! -z "${PLEX_CLAIM}" ] && [ -z "${token}" ]; then
-    echo "Attempting to obtain server token from claim token"
-    loginInfo="$(curl -X POST \
-        -H 'X-Plex-Client-Identifier: '${clientId} \
-        -H 'X-Plex-Product: Plex Media Server'\
-        -H 'X-Plex-Version: 1.1' \
-        -H 'X-Plex-Provides: server' \
-        -H 'X-Plex-Platform: Linux' \
-        -H 'X-Plex-Platform-Version: 1.0' \
-        -H 'X-Plex-Device-Name: PlexMediaServer' \
-        -H 'X-Plex-Device: Linux' \
-        "https://plex.tv/api/claim/exchange?token=${PLEX_CLAIM}")"
-    token="$(echo "$loginInfo" | sed -n 's/.*<authentication-token>\(.*\)<\/authentication-token>.*/\1/p')"
-
-    if [ "$token" ]; then
-        echo "Token obtained successfully"
-        setPref "PlexOnlineToken" "${token}"
-    fi
-fi
+# Claiming the PlexOnlineToken is now done in entrypoint on every boot
+# It can also be triggered manually at any time by running
+#           $ claim-server.sh --load-client-id --save
 
 test -n "${ADVERTISE_IP}"       && setPref "customConnections" "${ADVERTISE_IP}"
 test -n "${ALLOWED_NETWORKS}"   && setPref "allowedNetworks" "${ALLOWED_NETWORKS}"

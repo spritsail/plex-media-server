@@ -25,7 +25,7 @@ _*last we checked_
 
 Navigate to [plex.tv/claim](https://www.plex.tv/claim) and obtain a token in the form `claim-xxxx...`
 
-Start the container, as demonstrated below, passing the claim token via the `PLEX_CLAIM` environment variable. This only has to be present on the first run (when the configuration is generated) and can be removed for subsequent runs. _The Plex claim token is optional however it will make the server available to your account immediately._
+Start the container, as demonstrated below, passing the claim token via the `PLEX_CLAIM` environment variable. This only has to be present on the first run (when the configuration is generated/if you need to re-claim the server at any time) and can be removed for subsequent runs. _The Plex claim token is optional however it will make the server available to your account immediately._
 
 Setting the container hostname on first boot will set the Plex server name.
 
@@ -80,3 +80,8 @@ See also: https://support.plex.tv/articles/201543147-what-network-ports-do-i-nee
 At the very least, you should expose `32400/tcp` to your network, and _port forward_ it through your router if you would like Plex access outside your home network.
 
 If you wish, you can map the Plex port to any other port outside your network, just be sure to update the port in _Settings > Server > Remote Access_ (Show Advanced) under _Manually specify public port_.
+
+## Troubleshooting
+
+* **Help, I accidentally logged my server out and I can no longer access it**
+Just get another claim token from [plex.tv/claim](https://www.plex.tv/claim) and restart the container with it in the environment variable PLEX_CLAIM. This should re-claim your server and it'll appear in your server list once again. You can remove the claim token as soon as the server has been claimed- _they expire after 5 minutes anyway_
