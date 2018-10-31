@@ -17,6 +17,8 @@ ARG XMLSTAR_VER
 ARG LIBRE_VER=2.8.2
 ARG CURL_VER
 
+RUN echo this is a test build
+
 RUN apt-get -y update \
  && apt-get -y install zlib1g-dev
 
