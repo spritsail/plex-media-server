@@ -51,6 +51,26 @@ if [ ! -e "\$PREF_FILE" ]; then
     source gen-config.sh
 fi
 
+# Changes the log verbosity (Environment variable takes precedence on Plex Config)
+if [ "$LOG_VERBOSE" = "1" ]; then
+    setPref "LogVerbose" "1"
+elif [ "$LOG_VERBOSE" = "0" ]; then
+    setPref "LogVerbose" "0"
+elif [ ! -z "$LOG_VERBOSE" ]; then
+    2>&1 echo -e "${RED}LOG_VERBOSE value '$LOG_VERBOSE' is invalid${RESET}"
+    exit 1
+fi
+
+# Changes the debug verbosity (Environment variable takes precedence on Plex Config)
+if [ "$LOG_DEBUG" = "1" ]; then
+    setPref "logDebug" "1"
+elif [ "$LOG_DEBUG" = "0" ]; then
+    setPref "logDebug" "0"
+elif [ ! -z "$LOG_DEBUG" ]; then
+    2>&1 echo -e "${RED}LOG_DEBUG value '$LOG_DEBUG' is invalid${RESET}"
+    exit 1
+fi
+
 # Always attempt to claim an unclaimed server in case it was signed out
 token="\$(getPref "PlexOnlineToken")"
 if [ ! -z "\${PLEX_CLAIM}" ] && [ -z "\${token}" ]; then
