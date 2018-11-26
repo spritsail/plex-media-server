@@ -59,6 +59,8 @@ Finally, navigate to [app.plex.tv/desktop](https://app.plex.tv/desktop) or [your
 - `$ADVERTISE_IP`         - This variable defines the additional IPs on which the server may be be found. For example: `http://10.1.1.23:32400`. This adds to the list where the server advertises that it can be found.
 - `$DISABLE_REMOTE_SEC`   - 
 - `$PLEX_CLAIM`           - The claim token for the server to obtain a real server token. If not provided, server will not be automatically logged in. If server is already logged in, this parameter is ignored.
+- `$LOG_DEBUG`             - Disables debug logging if set to 0, and enables it if set to 1. This overwrites preferences set in the Plex Web user interface.
+- `$LOG_VERBOSE`           - Disables logging (except warnings and errors) if set to 0, and enables it if set to 1. This overwrites preferences set in the Plex Web user interface.
 
 ### Network
 
