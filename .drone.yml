@@ -32,7 +32,7 @@ pipeline:
     repo: spritsail/plex-media-server
     tags:
       - 'plexpass'
-      - '%label io.spritsail.version.plex | %auto | %prefix plexpass'
+      - '%label io.spritsail.version.plex | %prefix plexpass | %remsuf [0-9a-f]+$ | %auto 2'
 
   notify:
     image: spritsail/notify
