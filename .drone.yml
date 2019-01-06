@@ -26,7 +26,7 @@ pipeline:
   publish:
     image: spritsail/docker-publish
     volumes: [ '/var/run/docker.sock:/var/run/docker.sock' ]
-    secrets: [ docker_username, docker_password, microbadger_token ]
+    secrets: [ docker_username, docker_password ]
     when: { branch: [ nofonts ], event: [ push, tag, deployment ] }
     from: plex-nofonts-dev
     repo: spritsail/plex-media-server
