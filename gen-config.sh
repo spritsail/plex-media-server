@@ -8,6 +8,7 @@ source plex-util.sh
 echo -e $'<?xml version="1.0" encoding="utf-8"?>\n<Preferences />' > "${PREF_FILE}"
 
 # Enforced defaults. These can be changed manually afterwards.
+setPref "EnableIPv6" "1"
 setPref "AcceptedEULA" "1"
 setPref "TranscoderTempDirectory" "/transcode"
 
