@@ -3,7 +3,7 @@ ARG PLEX_SHA=1bd274026c4d7038ec57bad7c3735ce47f73b887
 ARG LIBSTDCPP_VER=6.3.0-18+deb9u1
 ARG LIBGCC1_VER=6.3.0-18+deb9u1
 ARG XMLSTAR_VER=1.6.1
-ARG CURL_VER=curl-7_61_1
+ARG CURL_VER=curl-7_64_0
 
 FROM spritsail/debian-builder:stretch-slim as builder
 
