@@ -124,11 +124,11 @@ RUN curl -fsSL http://ftp.de.debian.org/debian/pool/main/g/gcc-${LIBSTDCPP_VER:0
  && rm -f \
         "Plex Media Server Tests" \
         MigratePlexServerConfig.sh \
-        libcrypto.so.1.0.0 \
-        libcurl.so.4 \
-        libssl.so.1.0.0 \
-        libxml2.so.2 \
-        libxslt.so.1 \
+        libcrypto.so* \
+        libcurl.so* \
+        libssl.so* \
+        libxml2.so* \
+        libxslt.so* \
         Resources/start.sh \
     # Place shared libraries in usr/lib so they can be actually shared
  && mv *.so* ../
