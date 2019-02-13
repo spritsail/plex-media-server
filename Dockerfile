@@ -4,6 +4,7 @@ ARG LIBSTDCPP_VER=6.3.0-18+deb9u1
 ARG LIBGCC1_VER=6.3.0-18+deb9u1
 ARG XMLSTAR_VER=1.6.1
 ARG CURL_VER=curl-7_64_0
+ARG ZLIB_VER=1.2.11
 
 FROM spritsail/debian-builder:stretch-slim as builder
 
@@ -16,17 +17,25 @@ ARG LIBXSLT_VER=v1.1.32
 ARG XMLSTAR_VER
 ARG LIBRE_VER=2.8.2
 ARG CURL_VER
+ARG ZLIB_VER
 
 ARG MAKEFLAGS=-j2
 
-RUN apt-get -y update \
- && apt-get -y install zlib1g-dev
+# Download and build zlib
+WORKDIR /tmp/zlib
+RUN curl -sSf https://www.zlib.net/zlib-$ZLIB_VER.tar.xz \
+        | tar xJ --strip-components=1 \
+ && ./configure \
+        --prefix=/usr \
+        --shared \
+ && make DESTDIR=/prefix install
 
 # Download and build libxml2
 WORKDIR /tmp/libxml2
 RUN git clone https://gitlab.gnome.org/GNOME/libxml2.git --branch $LIBXML2_VER --depth 1 . \
  && ./autogen.sh \
         --prefix=/usr \
+        --with-zlib=/prefix/usr \
         --without-catalog \
         --without-docbook \
         --without-ftp \
@@ -43,6 +52,7 @@ WORKDIR /tmp/libxslt
 RUN git clone https://gitlab.gnome.org/GNOME/libxslt.git --branch $LIBXSLT_VER --depth 1 . \
  && ./autogen.sh \
         --prefix=/usr \
+        --with-zlib=/prefix/usr \
         --with-libxml-src="../libxml2" \
         --without-crypto \
         --without-plugins \
@@ -82,7 +92,7 @@ RUN git clone https://github.com/curl/curl.git --branch $CURL_VER --depth 1 . \
         --enable-versioned-symbols \
         --enable-threaded-resolver \
         --with-ssl \
-        --with-zlib \
+        --with-zlib=/prefix/usr \
         --disable-crypto-auth \
         --disable-curldebug \
         --disable-dependency-tracking \
@@ -129,6 +139,7 @@ RUN curl -fsSL http://ftp.de.debian.org/debian/pool/main/g/gcc-${LIBSTDCPP_VER:0
         libssl.so* \
         libxml2.so* \
         libxslt.so* \
+        libz.so* \
         Resources/start.sh \
     # Place shared libraries in usr/lib so they can be actually shared
  && mv *.so* ../
