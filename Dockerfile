@@ -4,6 +4,7 @@ ARG LIBSTDCPP_VER=6.3.0-18+deb9u1
 ARG LIBGCC1_VER=6.3.0-18+deb9u1
 ARG XMLSTAR_VER=1.6.1
 ARG CURL_VER=curl-7_64_0
+ARG ZLIB_VER=1.2.11
 
 FROM spritsail/debian-builder:stretch-slim as builder
 
@@ -16,15 +17,25 @@ ARG LIBXSLT_VER=v1.1.32
 ARG XMLSTAR_VER
 ARG LIBRE_VER=2.8.2
 ARG CURL_VER
+ARG ZLIB_VER
 
-RUN apt-get -y update \
- && apt-get -y install zlib1g-dev
+ARG MAKEFLAGS=-j2
+
+# Download and build zlib
+WORKDIR /tmp/zlib
+RUN curl -sSf https://www.zlib.net/zlib-$ZLIB_VER.tar.xz \
+        | tar xJ --strip-components=1 \
+ && ./configure \
+        --prefix=/usr \
+        --shared \
+ && make DESTDIR=/prefix install
 
 # Download and build libxml2
 WORKDIR /tmp/libxml2
 RUN git clone https://gitlab.gnome.org/GNOME/libxml2.git --branch $LIBXML2_VER --depth 1 . \
  && ./autogen.sh \
         --prefix=/usr \
+        --with-zlib=/prefix/usr \
         --without-catalog \
         --without-docbook \
         --without-ftp \
@@ -34,20 +45,19 @@ RUN git clone https://gitlab.gnome.org/GNOME/libxml2.git --branch $LIBXML2_VER -
         --without-legacy \
         --without-modules \
         --without-python \
- && make -j$(nproc) \
- && make -j$(nproc) DESTDIR=/prefix install
+ && make DESTDIR=/prefix install
 
 # Download and build libxslt
 WORKDIR /tmp/libxslt
 RUN git clone https://gitlab.gnome.org/GNOME/libxslt.git --branch $LIBXSLT_VER --depth 1 . \
  && ./autogen.sh \
         --prefix=/usr \
+        --with-zlib=/prefix/usr \
         --with-libxml-src="../libxml2" \
         --without-crypto \
         --without-plugins \
         --without-python \
- && make -j$(nproc) \
- && make -j$(nproc) DESTDIR=/prefix install
+ && make DESTDIR=/prefix install
 
 # Download and build xmlstarlet
 ADD xmlstarlet-*.patch /tmp
@@ -60,8 +70,7 @@ RUN git clone git://git.code.sf.net/p/xmlstar/code --branch $XMLSTAR_VER --depth
         --disable-build-docs \
         --with-libxml-prefix=/prefix/usr \
         --with-libxslt-prefix=/prefix/usr \
- && make -j$(nproc) \
- && make -j$(nproc) DESTDIR=/prefix install
+ && make DESTDIR=/prefix install
 
 # Download and build LibreSSL as a cURL dependency
 WORKDIR /tmp/libressl
@@ -69,7 +78,7 @@ RUN curl -sSL https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-${LIBRE_VER}
         | tar xz --strip-components=1 \
     # Install to the default system directories so cURL can find it
  && ./configure --prefix=/usr \
- && make -j$(nproc) install
+ && make install
 
 # Download and build curl
 WORKDIR /tmp/curl
@@ -83,7 +92,7 @@ RUN git clone https://github.com/curl/curl.git --branch $CURL_VER --depth 1 . \
         --enable-versioned-symbols \
         --enable-threaded-resolver \
         --with-ssl \
-        --with-zlib \
+        --with-zlib=/prefix/usr \
         --disable-crypto-auth \
         --disable-curldebug \
         --disable-dependency-tracking \
@@ -109,8 +118,7 @@ RUN git clone https://github.com/curl/curl.git --branch $CURL_VER --depth 1 . \
         --without-libpsl \
         --without-librtmp \
         --without-winidn \
- && make -j$(nproc) \
- && make -j$(nproc) DESTDIR=/prefix install
+ && make DESTDIR=/prefix install
 
 WORKDIR /prefix
 
@@ -126,11 +134,12 @@ RUN curl -fsSL http://ftp.de.debian.org/debian/pool/main/g/gcc-${LIBSTDCPP_VER:0
  && rm -f \
         "Plex Media Server Tests" \
         MigratePlexServerConfig.sh \
-        libcrypto.so.1.0.0 \
-        libcurl.so.4 \
-        libssl.so.1.0.0 \
-        libxml2.so.2 \
-        libxslt.so.1 \
+        libcrypto.so* \
+        libcurl.so* \
+        libssl.so* \
+        libxml2.so* \
+        libxslt.so* \
+        libz.so* \
         Resources/start.sh \
     # Place shared libraries in usr/lib so they can be actually shared
  && mv *.so* ../
