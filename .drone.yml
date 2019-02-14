@@ -3,6 +3,7 @@ pipeline:
     image: spritsail/docker-build
     volumes: [ '/var/run/docker.sock:/var/run/docker.sock' ]
     repo: plex-nofonts-dev
+    make: true
 
   test-bin:
     image: spritsail/docker-test
