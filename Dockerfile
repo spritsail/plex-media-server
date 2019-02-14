@@ -1,6 +1,5 @@
-ARG PLEX_VER=1.14.1.5488-cc260c476
-ARG PLEX_SHA=1bd274026c4d7038ec57bad7c3735ce47f73b887
-ARG LIBSTDCPP_VER=6.3.0-18+deb9u1
+ARG PLEX_VER=1.15.0.659-9311f93fd
+ARG PLEX_SHA=514a6ecf45169ca43fc531ad5b2fbb869757bc09
 ARG LIBGCC1_VER=6.3.0-18+deb9u1
 ARG XMLSTAR_VER=1.6.1
 ARG CURL_VER=curl-7_64_0
@@ -10,7 +9,6 @@ FROM spritsail/debian-builder:stretch-slim as builder
 
 ARG PLEX_VER
 ARG PLEX_SHA
-ARG LIBSTDCPP_VER
 ARG LIBGCC1_VER
 ARG LIBXML2_VER=v2.9.8
 ARG LIBXSLT_VER=v1.1.32
@@ -123,9 +121,8 @@ RUN git clone https://github.com/curl/curl.git --branch $CURL_VER --depth 1 . \
 WORKDIR /prefix
 
 # Fetch Plex and required libraries
-RUN curl -fsSL http://ftp.de.debian.org/debian/pool/main/g/gcc-${LIBSTDCPP_VER:0:1}/libstdc++6_${LIBSTDCPP_VER}_amd64.deb | dpkg-deb -x - . \
- && curl -fsSL http://ftp.de.debian.org/debian/pool/main/g/gcc-${LIBGCC1_VER:0:1}/libgcc1_${LIBGCC1_VER}_amd64.deb | dpkg-deb -x - . \
- && curl -fsSL -o plexmediaserver.deb https://downloads.plex.tv/plex-media-server/${PLEX_VER}/plexmediaserver_${PLEX_VER}_amd64.deb \
+RUN curl -fsSL http://ftp.de.debian.org/debian/pool/main/g/gcc-${LIBGCC1_VER:0:1}/libgcc1_${LIBGCC1_VER}_amd64.deb | dpkg-deb -x - . \
+ && curl -fsSL -o plexmediaserver.deb https://downloads.plex.tv/plex-media-server-new/${PLEX_VER}/debian/plexmediaserver_${PLEX_VER}_amd64.deb \
     \
  && echo "$PLEX_SHA  plexmediaserver.deb" | sha1sum -c - \
  && dpkg-deb -x plexmediaserver.deb . \
@@ -134,22 +131,21 @@ RUN curl -fsSL http://ftp.de.debian.org/debian/pool/main/g/gcc-${LIBSTDCPP_VER:0
  && rm -f \
         "Plex Media Server Tests" \
         MigratePlexServerConfig.sh \
-        libcrypto.so* \
-        libcurl.so* \
-        libssl.so* \
-        libxml2.so* \
-        libxslt.so* \
-        libz.so* \
+        lib/libcrypto.so* \
+        lib/libcurl.so* \
+        lib/libssl.so* \
+        lib/libxml2.so* \
+        lib/libxslt.so* \
+        lib/libz.so* \
         Resources/start.sh \
     # Place shared libraries in usr/lib so they can be actually shared
- && mv *.so* ../
+ && mv lib/* ../
 
     # Strip all unneeded symbols for optimum size
 RUN find -exec sh -c 'file "{}" | grep -q ELF && strip --strip-debug "{}"' \; \
     \
  && mkdir -p /output/usr/lib /output/usr/bin \
- && mv usr/lib/x86_64-linux-gnu/*.so* \
-       lib/x86_64-linux-gnu/*.so* \
+ && mv lib/x86_64-linux-gnu/*.so* \
        usr/lib/plexmediaserver \
        usr/lib/*.so* \
        /output/usr/lib \
