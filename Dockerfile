@@ -143,6 +143,10 @@ RUN curl -fsSL http://ftp.de.debian.org/debian/pool/main/g/gcc-${LIBGCC1_VER:0:1
 
     # Strip all unneeded symbols for optimum size
 RUN find -exec sh -c 'file "{}" | grep -q ELF && strip --strip-debug "{}"' \; \
+    # Disable executable stack in all libraries. This should already be the case
+    # but it seems libgnsdk is not playing along
+ && apt-get -y install execstack \
+ && execstack -c usr/lib/*.so* \
     \
  && mkdir -p /output/usr/lib /output/usr/bin \
  && mv lib/x86_64-linux-gnu/*.so* \
