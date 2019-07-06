@@ -4,6 +4,7 @@ ARG LIBGCC1_VER=6.3.0-18+deb9u1
 ARG XMLSTAR_VER=1.6.1
 ARG CURL_VER=curl-7_65_1
 ARG ZLIB_VER=1.2.11
+ARG LIBRE_VER=2.9.2
 
 FROM spritsail/debian-builder:stretch-slim as builder
 
@@ -13,7 +14,7 @@ ARG LIBGCC1_VER
 ARG LIBXML2_VER=v2.9.8
 ARG LIBXSLT_VER=v1.1.32
 ARG XMLSTAR_VER
-ARG LIBRE_VER=2.8.2
+ARG LIBRE_VER
 ARG CURL_VER
 ARG ZLIB_VER
 
@@ -166,7 +167,7 @@ RUN chmod +x /output/usr/local/bin/*
 
 #=========================
 
-FROM spritsail/libressl
+FROM spritsail/libressl:$LIBRE_VER
 
 ARG PLEX_VER
 ARG LIBSTDCPP_VER
