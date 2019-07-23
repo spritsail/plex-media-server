@@ -1,12 +1,12 @@
 ARG PLEX_VER=1.16.2.1321-ad17d5f9e
 ARG PLEX_SHA=1a7e7f7761f977a81dd5a69a83ebc9ebe6f77901
-ARG LIBGCC1_VER=6.3.0-18+deb9u1
+ARG LIBGCC1_VER=8.3.0-6
 ARG XMLSTAR_VER=1.6.1
 ARG CURL_VER=curl-7_65_1
 ARG ZLIB_VER=1.2.11
 ARG LIBRE_VER=2.9.2
 
-FROM spritsail/debian-builder:stretch-slim as builder
+FROM spritsail/debian-builder:buster-slim as builder
 
 ARG PLEX_VER
 ARG PLEX_SHA
@@ -17,8 +17,6 @@ ARG XMLSTAR_VER
 ARG LIBRE_VER
 ARG CURL_VER
 ARG ZLIB_VER
-
-ARG MAKEFLAGS=-j2
 
 # Download and build zlib
 WORKDIR /tmp/zlib
@@ -150,6 +148,7 @@ RUN curl -fsSL http://ftp.de.debian.org/debian/pool/main/g/gcc-${LIBGCC1_VER:0:1
 RUN find -exec sh -c 'file "{}" | grep -q ELF && strip --strip-debug "{}"' \; \
     # Disable executable stack in all libraries. This should already be the case
     # but it seems libgnsdk is not playing along
+ && apt-get -y update \
  && apt-get -y install execstack \
  && execstack -c usr/lib/*.so* \
     \
