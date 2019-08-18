@@ -1,6 +1,5 @@
 ARG PLEX_VER=1.16.4.1469-6d5612c2f
 ARG PLEX_SHA=0fa37565e74560debeaad2659a8c308e8825abe2
-ARG LIBGCC1_VER=8.3.0-6
 ARG XMLSTAR_VER=1.6.1
 ARG CURL_VER=curl-7_65_1
 ARG ZLIB_VER=1.2.11
@@ -10,7 +9,6 @@ FROM spritsail/debian-builder:buster-slim as builder
 
 ARG PLEX_VER
 ARG PLEX_SHA
-ARG LIBGCC1_VER
 ARG LIBXML2_VER=v2.9.8
 ARG LIBXSLT_VER=v1.1.32
 ARG XMLSTAR_VER
@@ -120,9 +118,7 @@ RUN git clone https://github.com/curl/curl.git --branch $CURL_VER --depth 1 . \
 WORKDIR /prefix
 
 # Fetch Plex and required libraries
-RUN curl -fsSL http://ftp.de.debian.org/debian/pool/main/g/gcc-${LIBGCC1_VER:0:1}/libgcc1_${LIBGCC1_VER}_amd64.deb | dpkg-deb -x - . \
- && curl -fsSL -o plexmediaserver.deb https://downloads.plex.tv/plex-media-server-new/${PLEX_VER}/debian/plexmediaserver_${PLEX_VER}_amd64.deb \
-    \
+RUN curl -fsSL -o plexmediaserver.deb https://downloads.plex.tv/plex-media-server-new/${PLEX_VER}/debian/plexmediaserver_${PLEX_VER}_amd64.deb \
  && echo "$PLEX_SHA  plexmediaserver.deb" | sha1sum -c - \
  && dpkg-deb -x plexmediaserver.deb . \
     \
@@ -138,7 +134,8 @@ RUN curl -fsSL http://ftp.de.debian.org/debian/pool/main/g/gcc-${LIBGCC1_VER:0:1
         lib/libz.so* \
         Resources/start.sh \
     # Place shared libraries in usr/lib so they can be actually shared
- && mv lib/* ../
+ && mv lib/* ../ \
+ && cp /lib/x86_64-linux-gnu/libgcc_s.so.1 lib/
 
     # Strip all unneeded symbols for optimum size
 RUN find -exec sh -c 'file "{}" | grep -q ELF && strip --strip-debug "{}"' \; \
@@ -165,8 +162,6 @@ RUN chmod +x /output/usr/local/bin/*
 FROM spritsail/libressl:$LIBRE_VER
 
 ARG PLEX_VER
-ARG LIBSTDCPP_VER
-ARG LIBGCC1_VER
 ARG CURL_VER
 ARG XMLSTAR_VER
 
@@ -178,8 +173,6 @@ LABEL maintainer="Spritsail <plex@spritsail.io>" \
       org.label-schema.version=${PLEX_VER} \
       io.spritsail.version.plex=${PLEX_VER} \
       io.spritsail.version.curl=${CURL_VER} \
-      io.spritsail.version.libgcc1=${LIBGCC1_VER} \
-      io.spritsail.version.libstdcpp=${LIBSTDCPP_VER} \
       io.spritsail.version.xmlstarlet=${XMLSTAR_VER}
 
 WORKDIR /usr/lib/plexmediaserver
