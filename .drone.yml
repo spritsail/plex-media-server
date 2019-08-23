@@ -1,41 +1,76 @@
-pipeline:
-  build:
-    image: spritsail/docker-build
-    volumes: [ '/var/run/docker.sock:/var/run/docker.sock' ]
-    repo: plex-dev
-    make: true
+---
+kind: pipeline
+name: build-amd64
 
-  test-bin:
-    image: spritsail/docker-test
-    volumes: [ '/var/run/docker.sock:/var/run/docker.sock' ]
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+- name: build
+  pull: always
+  image: spritsail/docker-build
+  settings:
+    make: true
+    repo: plex-dev
+
+- name: test-bin
+  pull: always
+  image: spritsail/docker-test
+  settings:
     repo: plex-dev
     run: |
       curl --version &&
       xmlstarlet --version
 
-  test:
-    image: spritsail/docker-test
-    volumes: [ '/var/run/docker.sock:/var/run/docker.sock' ]
-    repo: plex-dev
-    curl: ':32400/identity'
+- name: test
+  pull: always
+  image: spritsail/docker-test
+  settings:
+    curl: :32400/identity
     delay: 5
-    retry: 10
     pipe: |
       xmlstarlet sel -t -v "/MediaContainer/@version" |
       grep -qw "$(label io.spritsail.version.plex | cut -d- -f1)"
+    repo: plex-dev
+    retry: 10
 
-  publish:
-    image: spritsail/docker-publish
-    volumes: [ '/var/run/docker.sock:/var/run/docker.sock' ]
-    secrets: [ docker_username, docker_password, microbadger_token ]
-    when: { branch: [ master ], event: [ push, tag, deployment ] }
+- name: publish
+  pull: always
+  image: spritsail/docker-publish
+  settings:
     from: plex-dev
     repo: spritsail/plex-media-server
     tags:
-      - 'latest'
-      - '%label io.spritsail.version.plex | %remsuf [0-9a-f]+$ | %auto 2'
+    - latest
+    - "%label io.spritsail.version.plex | %remsuf [0-9a-f]+$ | %auto 2"
+  environment:
+    DOCKER_PASSWORD:
+      from_secret: docker_password
+    DOCKER_USERNAME:
+      from_secret: docker_username
+  when:
+    branch:
+    - master
+    event:
+    - push
+    - tag
 
-  notify:
-    image: spritsail/notify
-    when: { status: [ success, failure ] }
-    secrets: [ webhook_url, notify_token ]
+- name: notify
+  pull: always
+  image: spritsail/notify
+  environment:
+    NOTIFY_TOKEN:
+      from_secret: notify_token
+    WEBHOOK_URL:
+      from_secret: webhook_url
+  when:
+    status:
+    - success
+    - failure
+
+---
+kind: signature
+hmac: c1c9e7fe83806aba030d7395e11d9077863538131d04c8c291600fe8c84b99bc
+
+...
