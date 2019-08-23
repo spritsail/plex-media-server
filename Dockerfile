@@ -16,6 +16,28 @@ ARG LIBRE_VER
 ARG CURL_VER
 ARG ZLIB_VER
 
+WORKDIR /prefix
+
+# Fetch Plex and required libraries
+RUN curl -fsSL -o plexmediaserver.deb https://downloads.plex.tv/plex-media-server-new/${PLEX_VER}/debian/plexmediaserver_${PLEX_VER}_amd64.deb \
+ && echo "$PLEX_SHA  plexmediaserver.deb" | sha1sum -c - \
+ && dpkg-deb -x plexmediaserver.deb . \
+    \
+ && cd usr/lib/plexmediaserver \
+ && rm -f \
+        "Plex Media Server Tests" \
+        MigratePlexServerConfig.sh \
+        lib/libcrypto.so* \
+        lib/libcurl.so* \
+        lib/libssl.so* \
+        lib/libxml2.so* \
+        lib/libxslt.so* \
+        lib/libz.so* \
+        Resources/start.sh \
+    # Place shared libraries in usr/lib so they can be actually shared
+ && mv lib/* ../ \
+ && cp /lib/x86_64-linux-gnu/libgcc_s.so.1 lib/
+
 # Download and build zlib
 WORKDIR /tmp/zlib
 RUN curl -sSf https://www.zlib.net/zlib-$ZLIB_VER.tar.xz \
@@ -116,26 +138,6 @@ RUN git clone https://github.com/curl/curl.git --branch $CURL_VER --depth 1 . \
  && make DESTDIR=/prefix install
 
 WORKDIR /prefix
-
-# Fetch Plex and required libraries
-RUN curl -fsSL -o plexmediaserver.deb https://downloads.plex.tv/plex-media-server-new/${PLEX_VER}/debian/plexmediaserver_${PLEX_VER}_amd64.deb \
- && echo "$PLEX_SHA  plexmediaserver.deb" | sha1sum -c - \
- && dpkg-deb -x plexmediaserver.deb . \
-    \
- && cd usr/lib/plexmediaserver \
- && rm -f \
-        "Plex Media Server Tests" \
-        MigratePlexServerConfig.sh \
-        lib/libcrypto.so* \
-        lib/libcurl.so* \
-        lib/libssl.so* \
-        lib/libxml2.so* \
-        lib/libxslt.so* \
-        lib/libz.so* \
-        Resources/start.sh \
-    # Place shared libraries in usr/lib so they can be actually shared
- && mv lib/* ../ \
- && cp /lib/x86_64-linux-gnu/libgcc_s.so.1 lib/
 
     # Strip all unneeded symbols for optimum size
 RUN find -exec sh -c 'file "{}" | grep -q ELF && strip --strip-debug "{}"' \; \
