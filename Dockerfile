@@ -16,27 +16,32 @@ ARG LIBRE_VER
 ARG CURL_VER
 ARG ZLIB_VER
 
-WORKDIR /prefix
+ARG PREFIX=/prefix
+
+WORKDIR /plex
 
 # Fetch Plex and required libraries
 RUN curl -fsSL -o plexmediaserver.deb https://downloads.plex.tv/plex-media-server-new/${PLEX_VER}/debian/plexmediaserver_${PLEX_VER}_amd64.deb \
  && echo "$PLEX_SHA  plexmediaserver.deb" | sha1sum -c - \
  && dpkg-deb -x plexmediaserver.deb . \
     \
+ && rm -r \
+        etc/ lib/ usr/sbin/ usr/share/ \
+        plexmediaserver.deb \
+    \
  && cd usr/lib/plexmediaserver \
- && rm -f \
-        "Plex Media Server Tests" \
-        MigratePlexServerConfig.sh \
+ && rm \
         lib/libcrypto.so* \
         lib/libcurl.so* \
         lib/libssl.so* \
         lib/libxml2.so* \
         lib/libxslt.so* \
-        lib/libz.so* \
+        lib/libexslt.so* \
         Resources/start.sh \
     # Place shared libraries in usr/lib so they can be actually shared
- && mv lib/* ../ \
- && cp /lib/x86_64-linux-gnu/libgcc_s.so.1 lib/
+ && mv lib/*.so* lib/dri ../ \
+ && rmdir lib \
+ && cp /lib/x86_64-linux-gnu/libgcc_s.so.1 ../
 
 # Download and build zlib
 WORKDIR /tmp/zlib
@@ -45,14 +50,14 @@ RUN curl -sSf https://www.zlib.net/zlib-$ZLIB_VER.tar.xz \
  && ./configure \
         --prefix=/usr \
         --shared \
- && make DESTDIR=/prefix install
+ && make DESTDIR=$PREFIX install
 
 # Download and build libxml2
 WORKDIR /tmp/libxml2
 RUN git clone https://gitlab.gnome.org/GNOME/libxml2.git --branch $LIBXML2_VER --depth 1 . \
  && ./autogen.sh \
         --prefix=/usr \
-        --with-zlib=/prefix/usr \
+        --with-zlib=$PREFIX/usr \
         --without-catalog \
         --without-docbook \
         --without-ftp \
@@ -62,19 +67,18 @@ RUN git clone https://gitlab.gnome.org/GNOME/libxml2.git --branch $LIBXML2_VER -
         --without-legacy \
         --without-modules \
         --without-python \
- && make DESTDIR=/prefix install
+ && make DESTDIR=$PREFIX install
 
 # Download and build libxslt
 WORKDIR /tmp/libxslt
 RUN git clone https://gitlab.gnome.org/GNOME/libxslt.git --branch $LIBXSLT_VER --depth 1 . \
  && ./autogen.sh \
         --prefix=/usr \
-        --with-zlib=/prefix/usr \
         --with-libxml-src="../libxml2" \
         --without-crypto \
         --without-plugins \
         --without-python \
- && make DESTDIR=/prefix install
+ && make DESTDIR=$PREFIX install
 
 # Download and build xmlstarlet
 ADD xmlstarlet-*.patch /tmp
@@ -85,9 +89,9 @@ RUN git clone git://git.code.sf.net/p/xmlstar/code --branch $XMLSTAR_VER --depth
  && ./configure \
         --prefix=/usr \
         --disable-build-docs \
-        --with-libxml-prefix=/prefix/usr \
-        --with-libxslt-prefix=/prefix/usr \
- && make DESTDIR=/prefix install
+        --with-libxml-prefix=$PREFIX/usr \
+        --with-libxslt-prefix=$PREFIX/usr \
+ && make DESTDIR=$PREFIX install
 
 # Download and build LibreSSL as a cURL dependency
 WORKDIR /tmp/libressl
@@ -109,7 +113,7 @@ RUN git clone https://github.com/curl/curl.git --branch $CURL_VER --depth 1 . \
         --enable-versioned-symbols \
         --enable-threaded-resolver \
         --with-ssl \
-        --with-zlib=/prefix/usr \
+        --with-zlib=$PREFIX/usr \
         --disable-crypto-auth \
         --disable-curldebug \
         --disable-dependency-tracking \
@@ -135,25 +139,24 @@ RUN git clone https://github.com/curl/curl.git --branch $CURL_VER --depth 1 . \
         --without-libpsl \
         --without-librtmp \
         --without-winidn \
- && make DESTDIR=/prefix install
+ && make DESTDIR=$PREFIX install
 
-WORKDIR /prefix
+WORKDIR $PREFIX
+
+RUN mkdir -p /output/usr/lib /output/usr/bin \
+ && mv usr/lib/*.so* \
+       /plex/usr/lib/* \
+       /output/usr/lib \
+ && mv usr/bin/curl /output/usr/bin \
+ && mv usr/bin/xml /output/usr/bin/xmlstarlet
 
     # Strip all unneeded symbols for optimum size
-RUN find -exec sh -c 'file "{}" | grep -q ELF && strip --strip-debug "{}"' \; \
+RUN find /output -exec sh -c 'file "{}" | grep -q ELF && strip --strip-debug "{}"' \; \
     # Disable executable stack in all libraries. This should already be the case
     # but it seems libgnsdk is not playing along
  && apt-get -y update \
  && apt-get -y install execstack \
- && execstack -c usr/lib/*.so* \
-    \
- && mkdir -p /output/usr/lib /output/usr/bin \
- && mv lib/x86_64-linux-gnu/*.so* \
-       usr/lib/plexmediaserver \
-       usr/lib/*.so* \
-       /output/usr/lib \
- && mv usr/bin/curl /output/usr/bin \
- && mv usr/bin/xml /output/usr/bin/xmlstarlet
+ && execstack -c /output/usr/lib/*.so*
 
 ADD entrypoint /output/usr/local/bin/
 ADD *.sh /output/usr/local/bin/
