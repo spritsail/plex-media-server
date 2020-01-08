@@ -3,7 +3,7 @@ ARG PLEX_SHA=1ca3e97d72c7a2c9f1b7babb3adbc533380a28df
 ARG XMLSTAR_VER=1.6.1
 ARG CURL_VER=curl-7_66_0
 ARG ZLIB_VER=1.2.11
-ARG LIBRE_VER=2.9.2
+ARG OPENSSL_VER=1.0.2u
 
 FROM spritsail/debian-builder:buster-slim as builder
 
@@ -12,7 +12,7 @@ ARG PLEX_SHA
 ARG LIBXML2_VER=v2.9.9
 ARG LIBXSLT_VER=v1.1.33
 ARG XMLSTAR_VER
-ARG LIBRE_VER
+ARG OPENSSL_VER
 ARG CURL_VER
 ARG ZLIB_VER
 
@@ -93,13 +93,21 @@ RUN git clone git://git.code.sf.net/p/xmlstar/code --branch $XMLSTAR_VER --depth
         --with-libxslt-prefix=$PREFIX/usr \
  && make DESTDIR=$PREFIX install
 
-# Download and build LibreSSL as a cURL dependency
-WORKDIR /tmp/libressl
-RUN curl -sSL https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-${LIBRE_VER}.tar.gz \
+# Download and build OpenSSL as a cURL dependency
+WORKDIR /tmp/openssl
+RUN curl -sSL https://openssl.org/source/openssl-${OPENSSL_VER}.tar.gz \
         | tar xz --strip-components=1 \
     # Install to the default system directories so cURL can find it
- && ./configure --prefix=/usr \
- && make install
+ && ./config \
+        --prefix=/usr \
+        --libdir=lib \
+        --with-zlib-lib=$PREFIX/usr/lib/ \
+        --with-zlib-include=$PREFIX/usr/include \
+        shared \
+        zlib-dynamic \
+        no-rc5 \
+ && make install \
+ && cp libssl*.so* libcrypto*.so* $PREFIX/usr/lib
 
 # Download and build curl
 WORKDIR /tmp/curl
@@ -164,10 +172,11 @@ RUN chmod +x /output/usr/local/bin/*
 
 #=========================
 
-FROM spritsail/libressl:$LIBRE_VER
+FROM spritsail/busybox:latest
 
 ARG PLEX_VER
 ARG CURL_VER
+ARG OPENSSL_VER
 ARG XMLSTAR_VER
 
 LABEL maintainer="Spritsail <plex@spritsail.io>" \
@@ -178,6 +187,7 @@ LABEL maintainer="Spritsail <plex@spritsail.io>" \
       org.label-schema.version=${PLEX_VER} \
       io.spritsail.version.plex=${PLEX_VER} \
       io.spritsail.version.curl=${CURL_VER} \
+      io.spritsail.version.openssl=${OPENSSL_VER} \
       io.spritsail.version.xmlstarlet=${XMLSTAR_VER}
 
 WORKDIR /usr/lib/plexmediaserver
