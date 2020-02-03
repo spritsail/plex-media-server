@@ -44,30 +44,15 @@ steps:
     tags:
     - latest
     - "%label io.spritsail.version.plex | %remsuf [0-9a-f]+$ | %auto 2"
-  environment:
-    DOCKER_PASSWORD:
-      from_secret: docker_password
-    DOCKER_USERNAME:
+    username:
       from_secret: docker_username
+    password:
+      from_secret: docker_password
   when:
     branch:
     - master
     event:
     - push
-    - tag
-
-- name: notify
-  pull: always
-  image: spritsail/notify
-  environment:
-    NOTIFY_TOKEN:
-      from_secret: notify_token
-    WEBHOOK_URL:
-      from_secret: webhook_url
-  when:
-    status:
-    - success
-    - failure
 
 ---
 kind: signature

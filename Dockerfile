@@ -1,5 +1,5 @@
-ARG PLEX_VER=1.18.4.2171-ac2afe5f8
-ARG PLEX_SHA=1ca3e97d72c7a2c9f1b7babb3adbc533380a28df
+ARG PLEX_VER=1.18.5.2309-f5213a238
+ARG PLEX_SHA=83b6084f2aab5e74340296e529dabc39b6a93e54
 ARG XMLSTAR_VER=1.6.1
 ARG CURL_VER=curl-7_66_0
 ARG ZLIB_VER=1.2.11
@@ -26,7 +26,7 @@ RUN curl -fsSL -o plexmediaserver.deb https://downloads.plex.tv/plex-media-serve
  && dpkg-deb -x plexmediaserver.deb . \
     \
  && rm -r \
-        etc/ lib/ usr/sbin/ usr/share/ \
+        etc/ usr/sbin/ usr/share/ \
         plexmediaserver.deb \
     \
  && cd usr/lib/plexmediaserver \
@@ -37,6 +37,7 @@ RUN curl -fsSL -o plexmediaserver.deb https://downloads.plex.tv/plex-media-serve
         lib/libxml2.so* \
         lib/libxslt.so* \
         lib/libexslt.so* \
+        lib/plexmediaserver.* \
         Resources/start.sh \
     # Place shared libraries in usr/lib so they can be actually shared
  && mv lib/*.so* lib/dri ../ \
