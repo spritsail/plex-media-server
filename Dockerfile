@@ -1,16 +1,16 @@
-ARG PLEX_VER=1.18.9.2578-513b381af
-ARG PLEX_SHA=8854a6aebe9ac375431b2e3e5addc7b7421dea4a
+ARG PLEX_VER=1.19.1.2589-2de7f3266
+ARG PLEX_SHA=2b7a08c41b99b40a3cd45cf687ffd3de3c61c60c
 ARG XMLSTAR_VER=1.6.1
-ARG CURL_VER=curl-7_66_0
+ARG CURL_VER=curl-7_69_1
 ARG ZLIB_VER=1.2.11
-ARG OPENSSL_VER=1.0.2u
+ARG OPENSSL_VER=1.1.1e
 
 FROM spritsail/debian-builder:buster-slim as builder
 
 ARG PLEX_VER
 ARG PLEX_SHA
-ARG LIBXML2_VER=v2.9.9
-ARG LIBXSLT_VER=v1.1.33
+ARG LIBXML2_VER=v2.9.10
+ARG LIBXSLT_VER=v1.1.34
 ARG XMLSTAR_VER
 ARG OPENSSL_VER
 ARG CURL_VER
@@ -26,7 +26,7 @@ RUN curl -fsSL -o plexmediaserver.deb https://downloads.plex.tv/plex-media-serve
  && dpkg-deb -x plexmediaserver.deb . \
     \
  && rm -r \
-        etc/ usr/sbin/ usr/share/ \
+        etc/ usr/share/ \
         plexmediaserver.deb \
     \
  && cd usr/lib/plexmediaserver \
