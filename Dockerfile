@@ -3,7 +3,7 @@ ARG PLEX_SHA=2b7a08c41b99b40a3cd45cf687ffd3de3c61c60c
 ARG XMLSTAR_VER=1.6.1
 ARG CURL_VER=curl-7_69_1
 ARG ZLIB_VER=1.2.11
-ARG OPENSSL_VER=1.1.1e
+ARG OPENSSL_VER=1.1.1f
 
 FROM spritsail/debian-builder:buster-slim as builder
 
