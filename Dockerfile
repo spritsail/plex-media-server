@@ -107,7 +107,9 @@ RUN curl -sSL https://openssl.org/source/openssl-${OPENSSL_VER}.tar.gz \
         shared \
         zlib-dynamic \
         no-rc5 \
- && make install \
+ && make \
+    install_sw \
+    install_ssldirs \
  && cp libssl*.so* libcrypto*.so* $PREFIX/usr/lib
 
 # Download and build curl
