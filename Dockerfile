@@ -152,7 +152,9 @@ RUN git clone https://github.com/curl/curl.git --branch $CURL_VER --depth 1 . \
 
 WORKDIR $PREFIX
 
-RUN mkdir -p /output/usr/lib /output/usr/bin \
+RUN mkdir -p /output/usr/lib /output/usr/bin /output/etc/ssl/certs \
+    # Link Plex ca-certificates as system store so curl and others can use them too
+ && ln -sv /usr/lib/plexmediaserver/Resources/cacert.pem /output/etc/ssl/certs/ca-certificates.crt \
  && mv usr/lib/*.so* \
        /plex/usr/lib/* \
        /output/usr/lib \
