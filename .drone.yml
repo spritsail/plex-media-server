@@ -44,10 +44,8 @@ steps:
     tags:
     - latest
     - "%label io.spritsail.version.plex | %remsuf [0-9a-f]+$ | %auto 2"
-    username:
-      from_secret: docker_username
-    password:
-      from_secret: docker_password
+    username: {from_secret: docker_username}
+    password: {from_secret: docker_password}
   when:
     branch:
     - master
@@ -55,7 +53,26 @@ steps:
     - push
 
 ---
+kind: pipeline
+name: update-readme
+
+steps:
+- name: dockerhub-readme
+  pull: always
+  image: jlesage/drone-push-readme
+  settings:
+    username: {from_secret: docker_username}
+    password: {from_secret: docker_password}
+    repo: spritsail/plex-media-server
+  when:
+    branch:
+    - master
+    - pass
+    event:
+    - push
+
+---
 kind: signature
-hmac: c1c9e7fe83806aba030d7395e11d9077863538131d04c8c291600fe8c84b99bc
+hmac: 6d4fdd6274fdab370550ea310af156a7e6fdb74794c80bf234a825d7136f6783
 
 ...
