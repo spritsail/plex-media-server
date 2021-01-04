@@ -3,7 +3,7 @@ ARG PLEX_SHA=79ddd7599f4c2cba139c4a091ff1438b3f523a1d
 ARG XMLSTAR_VER=1.6.1
 ARG CURL_VER=curl-7_72_0
 ARG ZLIB_VER=1.2.11
-ARG OPENSSL_VER=1.1.1g
+ARG OPENSSL_VER=1.1.1i
 
 FROM spritsail/debian-builder:buster-slim as builder
 
@@ -108,6 +108,9 @@ RUN curl -sSL https://openssl.org/source/openssl-${OPENSSL_VER}.tar.gz \
         shared \
         zlib-dynamic \
         no-rc5 \
+        no-ssl3-method \
+ && make build_libs \
+ && make build_programs \
  && make \
     install_sw \
     install_ssldirs \
