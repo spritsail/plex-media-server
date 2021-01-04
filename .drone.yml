@@ -12,13 +12,11 @@ steps:
   image: spritsail/docker-build
   settings:
     make: true
-    repo: ppass-dev
 
 - name: test-bin
   pull: always
   image: spritsail/docker-test
   settings:
-    repo: ppass-dev
     run: |
       curl --version &&
       xmlstarlet --version
@@ -32,14 +30,12 @@ steps:
     pipe: |
       xmlstarlet sel -t -v "/MediaContainer/@version" |
       grep -qw "$(label io.spritsail.version.plex | cut -d- -f1)"
-    repo: ppass-dev
     retry: 10
 
 - name: publish
   pull: always
   image: spritsail/docker-publish
   settings:
-    from: ppass-dev
     repo: spritsail/plex-media-server
     tags:
     - plexpass
