@@ -175,9 +175,10 @@ RUN find /output -exec sh -c 'file "{}" | grep -q ELF && strip --strip-debug "{}
  && apt-get -y install execstack \
  && execstack -c /output/usr/lib/*.so*
 
-ADD entrypoint /output/usr/local/bin/
-ADD *.sh /output/usr/local/bin/
-RUN chmod +x /output/usr/local/bin/*
+ADD --chmod=755 \
+        entrypoint \
+        *.sh \
+        /output/usr/local/bin/
 
 #=========================
 
