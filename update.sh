@@ -11,13 +11,16 @@ sed -Ei \
     Dockerfile
 
 if ! git diff --quiet --exit-code Dockerfile; then
+    export GIT_COMMITTER_NAME="Spritsail Bot"
+    export GIT_COMMITTER_EMAIL="<bot@spritsail.io>"
+    export GIT_AUTHOR_NAME="$GIT_COMMITTER_NAME"
+    export GIT_AUTHOR_EMAIL="$GIT_COMMITTER_EMAIL"
     git reset --soft
     git add -- Dockerfile
     git commit \
-        --author="Spritsail Bot <bot@spritsail.io>" \
         --no-gpg-sign \
+        --signoff \
         -m "Update to Plex ${VERSION%-*}"
-    git push origin HEAD
 else
     >&2 echo No update available
 fi
