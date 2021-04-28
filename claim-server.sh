@@ -2,9 +2,9 @@
 set -e
 
 # Contains getPref/setPref and PREF_FILE vars
-source plex-util.sh
+. plex-util.sh
 
-opts=`getopt -n "$0" -l save -l token: -l client-id: -l load-client-id -- st:c:l "$@"` || exit 1
+opts=$(getopt -n "$0" -l save -l token: -l client-id: -l load-client-id -- st:c:l "$@") || exit 1
 eval set -- "$opts"
 while true; do
     case "$1" in
@@ -34,15 +34,16 @@ fi
 
 >&2 echo "Attempting to obtain server token from claim token"
 loginInfo="$(curl -X POST \
-    -H 'X-Plex-Client-Identifier: '${clientId} \
-    -H 'X-Plex-Product: Plex Media Server'\
-    -H 'X-Plex-Version: 1.1' \
-    -H 'X-Plex-Provides: server' \
-    -H 'X-Plex-Platform: Linux' \
-    -H 'X-Plex-Platform-Version: 1.0' \
-    -H 'X-Plex-Device-Name: PlexMediaServer' \
-    -H 'X-Plex-Device: Linux' \
-    "https://plex.tv/api/claim/exchange?token=${claimToken}")"
+    -H "X-Plex-Client-Identifier: ${clientId}" \
+    -H "X-Plex-Product: Plex Media Server" \
+    -H "X-Plex-Version: 1.1" \
+    -H "X-Plex-Provides: server" \
+    -H "X-Plex-Platform: Linux" \
+    -H "X-Plex-Platform-Version: 1.0" \
+    -H "X-Plex-Device-Name: PlexMediaServer" \
+    -H "X-Plex-Device: Linux" \
+    "https://plex.tv/api/claim/exchange?token=${claimToken}"
+)"
 
 authtoken="$(echo "$loginInfo" | sed -n 's/.*<authentication-token>\(.*\)<\/authentication-token>.*/\1/p')"
 

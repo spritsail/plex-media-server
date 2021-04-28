@@ -13,13 +13,9 @@
 [![Build Status](https://drone.spritsail.io/api/badges/spritsail/plex-media-server/status.svg?branch=pass)][drone]
 [![Last Build](https://api.spritsail.io/badges/lastbuild/spritsail/plex-media-server:plexpass.svg)][drone]
 
-The _smallest*_ Plex Media Server docker image, built on barebones [spritsail/busybox](https://hub.docker.com/r/spritsail/busybox/) with glibc and libraries built from source. The container hosts a fully featured Plex Media Server, with almost all of the useless crap removed, resulting in the smallest container possible whilst maintaining full functionality.
-
-You can find out more about the [spritsail/busybox](https://hub.docker.com/r/spritsail/busybox) base image [here](https://github.com/spritsail/busybox)
+The _smallest*_ Plex Media Server docker image, built `FROM scratch` with musl provided by Plex and supporting libraries and binaries built from source. The container hosts a fully featured Plex Media Server, with almost all of the useless crap removed, resulting in the smallest container possible whilst maintaining full functionality.
 
 _*last we checked_
-
-**NOTICE:** This build has changed the `/config/Plex Media Server` mountpoint inside the container to now be present at `/config`. If you previously used this container, please update your mountpoint to `/config`.
 
 ## Getting Started
 
