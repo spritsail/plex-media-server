@@ -2,12 +2,6 @@
 kind: pipeline
 name: build-amd64
 
-trigger:
-  event:
-  - push
-  - pull_request
-  - tag
-
 platform:
   os: linux
   arch: amd64
@@ -55,37 +49,8 @@ steps:
     - pass
     event:
     - push
-
----
-kind: pipeline
-name: update-cron
-
-trigger:
-  event:
-  - cron
-
-platform:
-  os: linux
-  arch: amd64
-
-steps:
-- name: update
-  pull: always
-  image: spritsail/alpine
-  commands:
-  - apk add bash curl jq git
-  - ./update.sh
-
-- name: push
-  pull: always
-  image: appleboy/drone-git-push
-  settings:
-    branch: pass
-    remote: git@github.com:spritsail/plex-media-server.git
-    ssh_key: {from_secret: git_ssh_key}
-
 ---
 kind: signature
-hmac: 21c718e301b4ad099b8a7c6cd9f0021e5fd86fcbd3ba14a16184a40eca155fd0
+hmac: d7ad7e2102295415a2f975e1cb216c712d3b7fd78b11bd48020eb8f464a13b88
 
 ...
