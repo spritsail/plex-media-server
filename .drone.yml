@@ -18,7 +18,8 @@ steps:
   image: spritsail/docker-test
   settings:
     run: |
-      curl --version &&
+      busybox && \
+      curl --version && \
       xmlstarlet --version
 
 - name: test
@@ -40,8 +41,7 @@ steps:
     tags:
     - latest
     - "%label io.spritsail.version.plex | %remsuf [0-9a-f]+$ | %auto 2"
-    username: {from_secret: docker_username}
-    password: {from_secret: docker_password}
+    login: {from_secret: docker_login}
   when:
     branch:
     - master
@@ -69,6 +69,6 @@ steps:
 
 ---
 kind: signature
-hmac: 6d4fdd6274fdab370550ea310af156a7e6fdb74794c80bf234a825d7136f6783
+hmac: ee4c475518f6fddf4c2227fdee938a3e8d5c0a63e52fbab79f1133c8f5a2a91d
 
 ...
