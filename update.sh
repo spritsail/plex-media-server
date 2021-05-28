@@ -21,6 +21,7 @@ if ! git diff --quiet --exit-code Dockerfile; then
         --no-gpg-sign \
         --signoff \
         -m "Update to Plex ${VERSION%-*}"
+    git push origin HEAD
 else
     >&2 echo No update available
 fi
