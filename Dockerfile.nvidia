@@ -1,0 +1,27 @@
+ARG PLEX_VER=1.23.4.4712
+ARG NVIDIA_VER=465.31
+ARG NVIDIA_REV=1
+ARG ARCH=amd64
+
+FROM alpine
+
+ARG NVIDIA_VER
+ARG NVIDIA_REV
+ARG ARCH
+
+RUN apk add --no-cache curl dpkg && \
+    for pkg in libnvcuvid1 libnvidia-encode1; do \
+        curl -fsSLO https://deb.debian.org/debian/pool/non-free/n/nvidia-graphics-drivers/${pkg}_${NVIDIA_VER}-${NVIDIA_REV}_${ARCH}.deb && \
+        dpkg-deb -x ${pkg}_${NVIDIA_VER}-${NVIDIA_REV}_${ARCH}.deb /nvidia; \
+    done
+
+# ~~~~~~~~~~~~~~~~~~
+
+FROM spritsail/plex-media-server:plexpass-${PLEX_VER}
+
+ARG NVIDIA_VER
+
+COPY --from=0 \
+    /nvidia/usr/lib/x86_64-linux-gnu/nvidia/current/libnvcuvid.so.${NVIDIA_VER} \
+    /nvidia/usr/lib/x86_64-linux-gnu/nvidia/current/libnvidia-encode.so.${NVIDIA_VER} \
+    /usr/lib/
