@@ -7,8 +7,8 @@ ARG ZLIB_VER=1.2.11
 ARG LIBXML2_VER=v2.9.10
 ARG LIBXSLT_VER=v1.1.34
 ARG XMLSTAR_VER=1.6.1
-ARG OPENSSL_VER=1.1.1i
-ARG CURL_VER=curl-7_76_1
+ARG OPENSSL_VER=1.1.1l
+ARG CURL_VER=curl-7_78_0
 
 ARG OUTPUT=/output
 ARG DESTDIR=/prefix
@@ -277,7 +277,6 @@ RUN git clone https://github.com/curl/curl.git --branch $CURL_VER --depth 1 . \
         --disable-tls-srp \
         --disable-verbose \
         --without-axtls \
-        --without-libmetalink \
         --without-libpsl \
         --without-librtmp \
         --without-winidn \
