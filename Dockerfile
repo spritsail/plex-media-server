@@ -1,6 +1,6 @@
 ARG PLEX_VER=1.25.0.5220-de6e61df7
 ARG PLEX_SHA=70b787d2ad5780299a4090c28b0c692ed679d755
-ARG BUSYBOX_VER=1.33.0
+ARG BUSYBOX_VER=1.34.1
 ARG SU_EXEC_VER=0.4
 ARG TINI_VER=0.19.0
 ARG ZLIB_VER=1.2.11
@@ -8,7 +8,7 @@ ARG LIBXML2_VER=v2.9.10
 ARG LIBXSLT_VER=v1.1.34
 ARG XMLSTAR_VER=1.6.1
 ARG OPENSSL_VER=1.1.1i
-ARG CURL_VER=curl-7_76_1
+ARG CURL_VER=curl-7_80_0
 
 ARG OUTPUT=/output
 ARG DESTDIR=/prefix
@@ -18,7 +18,7 @@ ARG LDFLAGS="$CFLAGS -Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now"
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-FROM spritsail/alpine:3.13 AS builder
+FROM spritsail/alpine:3.14 AS builder
 
 RUN apk add --no-cache \
         autoconf \
@@ -277,7 +277,6 @@ RUN git clone https://github.com/curl/curl.git --branch $CURL_VER --depth 1 . \
         --disable-tls-srp \
         --disable-verbose \
         --without-axtls \
-        --without-libmetalink \
         --without-libpsl \
         --without-librtmp \
         --without-winidn \
