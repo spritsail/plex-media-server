@@ -1,14 +1,14 @@
 ARG PLEX_VER=1.24.5.5173-8dcc73a59
 ARG PLEX_SHA=42753c9a80706867709cddadefc2520334cf12c9
-ARG BUSYBOX_VER=1.33.0
+ARG BUSYBOX_VER=1.34.1
 ARG SU_EXEC_VER=0.4
 ARG TINI_VER=0.19.0
 ARG ZLIB_VER=1.2.11
 ARG LIBXML2_VER=v2.9.10
 ARG LIBXSLT_VER=v1.1.34
 ARG XMLSTAR_VER=1.6.1
-ARG OPENSSL_VER=1.1.1l
-ARG CURL_VER=curl-7_78_0
+ARG OPENSSL_VER=1.1.1i
+ARG CURL_VER=curl-7_80_0
 
 ARG OUTPUT=/output
 ARG DESTDIR=/prefix
@@ -18,7 +18,7 @@ ARG LDFLAGS="$CFLAGS -Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now"
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-FROM spritsail/alpine:3.13 AS builder
+FROM spritsail/alpine:3.15 AS builder
 
 RUN apk add --no-cache \
         autoconf \
