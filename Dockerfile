@@ -1,5 +1,5 @@
-ARG PLEX_VER=1.25.3.5409-f11334058
-ARG PLEX_SHA=58b2accdabc0e03209041b71253cdc2e853f54e6
+ARG PLEX_VER=1.25.4.5468-989df2310
+ARG PLEX_SHA=54626ffe9188d0dcc795baef9105d29ae444b5b2
 ARG BUSYBOX_VER=1.34.1
 ARG SU_EXEC_VER=0.4
 ARG TINI_VER=0.19.0
@@ -63,9 +63,6 @@ RUN curl -fsSL -o plexmediaserver.deb https://downloads.plex.tv/plex-media-serve
         lib/libcurl.so* \
         lib/libssl.so* \
         lib/libnghttp2.so* \
-        lib/libxml2.so* \
-        lib/libxslt.so* \
-        lib/libexslt.so* \
         lib/plexmediaserver.* \
         etc/ld-musl-x86_64.path \
         Resources/start.sh \
