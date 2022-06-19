@@ -2,10 +2,10 @@
 set -e
 
 # Contains getPref/setPref and PREF_FILE vars
-source plex-util.sh
+. plex-util.sh
 
 # Create a default config file allowing external access
-echo -e $'<?xml version="1.0" encoding="utf-8"?>\n<Preferences />' > "${PREF_FILE}"
+printf "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<Preferences />" > "${PREF_FILE}"
 
 # Enforced defaults. These can be changed manually afterwards.
 setPref "EnableIPv6" "1"
@@ -23,7 +23,7 @@ if [ -z "${serial}" ]; then
 fi
 clientId="$(getPref "ProcessedMachineIdentifier")"
 if [ -z "${clientId}" ]; then
-    clientId="$(echo -n "${serial}- Plex Media Server" | sha1sum | cut -b 1-40)"
+    clientId="$(printf %s "${serial}- Plex Media Server" | sha1sum | cut -b 1-40)"
     setPref "ProcessedMachineIdentifier" "${clientId}"
 fi
 
@@ -31,6 +31,6 @@ fi
 # It can also be triggered manually at any time by running
 #           $ claim-server.sh --load-client-id --save
 
-test -n "${ADVERTISE_IP}"       && setPref "customConnections" "${ADVERTISE_IP}"
-test -n "${ALLOWED_NETWORKS}"   && setPref "allowedNetworks" "${ALLOWED_NETWORKS}"
-test -n "${DISABLE_REMOTE_SEC}" && setPref "disableRemoteSecurity" "1"
+if [ -n "${ADVERTISE_IP}" ]; then       setPref "customConnections" "${ADVERTISE_IP}"; fi
+if [ -n "${ALLOWED_NETWORKS}" ]; then   setPref "allowedNetworks" "${ALLOWED_NETWORKS}"; fi
+if [ -n "${DISABLE_REMOTE_SEC}" ]; then setPref "disableRemoteSecurity" "1"; fi

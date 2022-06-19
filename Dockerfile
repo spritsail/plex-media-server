@@ -1,6 +1,5 @@
 ARG PLEX_VER=1.27.0.5897-3940636f2
-ARG PLEX_SHA=6f40a2fb51c04180a465dbbb8c463e0ac7f73dfb
-ARG BUSYBOX_VER=1.34.1
+ARG BUSYBOX_VER=1.35.0
 ARG SU_EXEC_VER=0.4
 ARG TINI_VER=0.19.0
 ARG ZLIB_VER=1.2.12
@@ -18,7 +17,7 @@ ARG LDFLAGS="$CFLAGS -Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now"
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-FROM spritsail/alpine:3.15 AS builder
+FROM spritsail/alpine:3.16 AS builder
 
 RUN apk add --no-cache \
         autoconf \
@@ -43,36 +42,39 @@ RUN apk add --no-cache \
 FROM builder AS plex
 
 ARG PLEX_VER
-ARG PLEX_SHA
 ARG OUTPUT
 
 WORKDIR $OUTPUT
 
 # Fetch Plex and required libraries
-RUN curl -fsSL -o plexmediaserver.deb https://downloads.plex.tv/plex-media-server-new/${PLEX_VER}/debian/plexmediaserver_${PLEX_VER}_amd64.deb \
- && echo "$PLEX_SHA  plexmediaserver.deb" | sha1sum -c - \
+RUN if [ "$(uname -m)" = "aarch64" ]; then \
+        ARCH=arm64; LIB_DIRS=lib/omx; \
+    else \
+        ARCH=amd64; LIB_DIRS=lib/dri; \
+    fi \
+ && curl -fsSL -o plexmediaserver.deb https://downloads.plex.tv/plex-media-server-new/${PLEX_VER}/debian/plexmediaserver_${PLEX_VER}_${ARCH}.deb \
  && dpkg-deb -x plexmediaserver.deb . \
     \
- && rm -r \
+ && rm -rfv \
         etc/ usr/share/ \
+        usr/lib/plexmediaserver/etc \
         plexmediaserver.deb \
     \
  && cd usr/lib/plexmediaserver \
- && rm \
+ && rm -v \
         lib/libcrypto.so* \
         lib/libcurl.so* \
         lib/libssl.so* \
         lib/libnghttp2.so* \
         lib/plexmediaserver.* \
-        etc/ld-musl-x86_64.path \
         Resources/start.sh \
     \
     # Place shared libraries in usr/lib so they can be actually shared
- && mv lib/*.so* lib/dri ../ \
- && rmdir lib etc \
+ && mv lib/*.so* $LIB_DIRS ../ \
+ && rmdir lib \
  && ln -sv ../ lib \
     # Replace hardlink with a symlink; these files are the same
- && cd .. && ln -sfvn ld-musl-x86_64.so.1 libc.so
+ && cd .. && ln -sfvn "ld-musl-$(uname -m).so.1" libc.so
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
