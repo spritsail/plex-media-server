@@ -48,7 +48,7 @@ def step(arch, key):
         "image": "spritsail/docker-test",
         "settings": {
           "curl": ":32400/identity",
-          "delay": 5,
+          "delay": 20,
           "pipe": "xmlstarlet sel -t -v \"/MediaContainer/@version\" | grep -qw \"$(label io.spritsail.version.plex | cut -d- -f1)\"",
           "retry": 10
         },
