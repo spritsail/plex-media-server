@@ -326,12 +326,11 @@ ARG OPENSSL_VER
 ARG CURL_VER
 ARG OUTPUT
 
-LABEL maintainer="Spritsail <plex@spritsail.io>" \
-      org.label-schema.vendor="Spritsail" \
-      org.label-schema.name="Plex Media Server" \
-      org.label-schema.url="https://www.plex.tv/downloads/" \
-      org.label-schema.description="Tiny Docker image for Plex Media Server, built on busybox" \
-      org.label-schema.version=${PLEX_VER} \
+LABEL org.opencontainers.image.authors="Spritsail <plex@spritsail.io>" \
+      org.opencontainers.image.title="Plex Media Server" \
+      org.opencontainers.image.url="https://www.plex.tv/downloads/" \
+      org.opencontainers.image.description="Tiny Docker image for Plex Media Server, built on busybox" \
+      org.opencontainers.image.version=${PLEX_VER} \
       io.spritsail.version.plex=${PLEX_VER} \
       io.spritsail.version.xmlstarlet=${XMLSTAR_VER} \
       io.spritsail.version.busybox=${BUSYBOX_VER} \
