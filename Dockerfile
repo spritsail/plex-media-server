@@ -3,10 +3,11 @@ ARG BUSYBOX_VER=1.36.0
 ARG SU_EXEC_VER=0.4
 ARG TINI_VER=0.19.0
 ARG ZLIB_VER=1.2.13
-ARG LIBXML2_VER=v2.10.3
-ARG LIBXSLT_VER=v1.1.37
+ARG LIBXML2_VER=2.10.3
+ARG LIBXSLT_VER=1.1.37
 ARG XMLSTAR_VER=1.6.1
 ARG OPENSSL_VER=3.0.8
+ARG NGHTTP2_VER=1.52.0
 ARG CURL_VER=curl-8_0_1
 
 ARG OUTPUT=/output
@@ -80,14 +81,12 @@ RUN if [ "$(uname -m)" = "aarch64" ]; then \
 
 FROM builder AS busybox
 
-ARG BUSYBOX_VER
-ARG SU_EXEC_VER
-ARG TINI_VER
 ARG CFLAGS
 ARG LDFLAGS
 ARG MAKEFLAGS
 ARG OUTPUT
 
+ARG BUSYBOX_VER
 WORKDIR /tmp/busybox
 
 RUN curl -fsSL https://busybox.net/downloads/busybox-${BUSYBOX_VER}.tar.bz2 \
@@ -99,6 +98,7 @@ RUN curl -fsSL https://busybox.net/downloads/busybox-${BUSYBOX_VER}.tar.bz2 \
  && mkdir -p "$OUTPUT/usr/bin" "$OUTPUT/usr/sbin" \
  && ./busybox --list-full | sed -E 's@^(s?bin)@usr/\1@' | xargs -i ln -Tsv /usr/bin/busybox "$OUTPUT/{}"
 
+ARG SU_EXEC_VER
 WORKDIR /tmp/su-exec
 
 RUN curl -fL https://github.com/frebib/su-exec/archive/v${SU_EXEC_VER}.tar.gz \
@@ -106,6 +106,7 @@ RUN curl -fL https://github.com/frebib/su-exec/archive/v${SU_EXEC_VER}.tar.gz \
  && make \
  && install -Dm755 su-exec "$OUTPUT/usr/sbin/su-exec"
 
+ARG TINI_VER
 WORKDIR /tmp/tini
 
 RUN curl -fL https://github.com/krallin/tini/archive/v${TINI_VER}.tar.gz \
@@ -118,13 +119,13 @@ RUN curl -fL https://github.com/krallin/tini/archive/v${TINI_VER}.tar.gz \
 
 FROM builder AS zlib
 
-ARG ZLIB_VER
 ARG CFLAGS
 ARG LDFLAGS
 ARG MAKEFLAGS
 ARG OUTPUT
 ARG DESTDIR
 
+ARG ZLIB_VER
 WORKDIR /tmp/zlib
 
 RUN curl -sSf https://www.zlib.net/zlib-$ZLIB_VER.tar.xz \
@@ -132,27 +133,15 @@ RUN curl -sSf https://www.zlib.net/zlib-$ZLIB_VER.tar.xz \
  && ./configure \
         --prefix=/usr \
         --shared \
+ && make install \
  && make DESTDIR="$DESTDIR" install \
  && mkdir -p "$OUTPUT/usr/lib" \
- && cp -a "$DESTDIR"/usr/lib/*.so* "$OUTPUT/usr/lib"
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-FROM builder AS xml
+ && cp -aP "$DESTDIR"/usr/lib/*.so* "$OUTPUT/usr/lib"
 
 ARG LIBXML2_VER
-ARG LIBXSLT_VER
-ARG XMLSTAR_VER
-ARG CFLAGS
-ARG LDFLAGS
-ARG MAKEFLAGS
-ARG OUTPUT
-ARG DESTDIR
-
-COPY --from=zlib "$DESTDIR" "$DESTDIR"
-
 WORKDIR /tmp/libxml2
-RUN git clone https://gitlab.gnome.org/GNOME/libxml2.git --branch $LIBXML2_VER --depth 1 . \
+
+RUN git clone https://gitlab.gnome.org/GNOME/libxml2.git --branch v$LIBXML2_VER --depth 1 . \
  && ./autogen.sh \
         --prefix=/usr \
         --with-zlib="$DESTDIR/usr" \
@@ -165,12 +154,24 @@ RUN git clone https://gitlab.gnome.org/GNOME/libxml2.git --branch $LIBXML2_VER -
         --without-legacy \
         --without-modules \
         --without-python \
+ && make install \
  && make DESTDIR="$DESTDIR" install \
- && mkdir -p "$OUTPUT/usr/lib" \
- && cp -a "$DESTDIR"/usr/lib/*.so* "$OUTPUT/usr/lib"
+ && cp -aP "$DESTDIR"/usr/lib/*.so* "$OUTPUT/usr/lib"
 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+FROM zlib AS xml
+
+ARG CFLAGS
+ARG LDFLAGS
+ARG MAKEFLAGS
+ARG OUTPUT
+ARG DESTDIR
+
+ARG LIBXSLT_VER
 WORKDIR /tmp/libxslt
-RUN git clone https://gitlab.gnome.org/GNOME/libxslt.git --branch $LIBXSLT_VER --depth 1 . \
+
+RUN git clone https://gitlab.gnome.org/GNOME/libxslt.git --branch v$LIBXSLT_VER --depth 1 . \
  && ./autogen.sh \
         --prefix=/usr \
         --with-libxml-src=../libxml2 \
@@ -178,11 +179,12 @@ RUN git clone https://gitlab.gnome.org/GNOME/libxslt.git --branch $LIBXSLT_VER -
         --without-plugins \
         --without-python \
  && make DESTDIR="$DESTDIR" install \
- && mkdir -p "$OUTPUT/usr/lib" \
- && cp -a "$DESTDIR"/usr/lib/*.so* "$OUTPUT/usr/lib"
+ && cp -aP "$DESTDIR"/usr/lib/*.so* "$OUTPUT/usr/lib"
 
+ARG XMLSTAR_VER
 ADD xmlstarlet-*.patch /tmp
 WORKDIR /tmp/xmlstarlet
+
 RUN git clone git://git.code.sf.net/p/xmlstar/code --branch $XMLSTAR_VER --depth 1 . \
  && git apply /tmp/xmlstarlet*.patch \
  && autoreconf -sif \
@@ -196,19 +198,17 @@ RUN git clone git://git.code.sf.net/p/xmlstar/code --branch $XMLSTAR_VER --depth
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-FROM builder AS curl
+FROM zlib AS curl
 
-ARG OPENSSL_VER
-ARG CURL_VER
 ARG CFLAGS
 ARG LDFLAGS
 ARG MAKEFLAGS
 ARG OUTPUT
 ARG DESTDIR
 
-COPY --from=zlib "$DESTDIR" "$DESTDIR"
-
+ARG OPENSSL_VER
 WORKDIR /tmp/openssl
+
 RUN curl -sSL https://openssl.org/source/openssl-${OPENSSL_VER}.tar.gz \
         | tar xz --strip-components=1 \
  && ./config \
@@ -226,15 +226,30 @@ RUN curl -sSL https://openssl.org/source/openssl-${OPENSSL_VER}.tar.gz \
  && make DESTDIR="$DESTDIR" \
     install_sw \
     install_ssldirs \
- && mkdir -p "$OUTPUT/usr/lib" \
- && cp -a "$DESTDIR"/usr/lib/*.so* "$OUTPUT/usr/lib" \
+ && make install_sw install_ssldirs \
+ && cp -aP "$DESTDIR"/usr/lib/*.so* "$OUTPUT/usr/lib" \
  && sed -i "s@prefix=/usr@prefix=$DESTDIR/usr@g" "$DESTDIR"/usr/lib/pkgconfig/*.pc
+
+ARG NGHTTP2_VER
+WORKDIR /tmp/libnghttp2
+
+RUN git clone https://github.com/nghttp2/nghttp2.git -b v$NGHTTP2_VER --depth 1 . \
+ && autoreconf -i \
+ && ./configure \
+        --prefix=/usr \
+        --enable-lib-only \
+        --with-libxml2=yes \
+        --with-openssl=yes \
+        --with-zlib=yes \
+ && make DESTDIR="$DESTDIR" install \
+ && cp -aP "$DESTDIR"/usr/lib/libnghttp2*.so* "$OUTPUT/usr/lib"
 
 # /usr/lib # curl --version
 # curl 7.74.0-DEV (x86_64-pc-linux-musl) libcurl/7.73.0-DEV OpenSSL/1.1.1i zlib/1.2.11 nghttp2/1.41.0
 # Protocols: http https
 # Features: AsynchDNS HTTP2 HTTPS-proxy IPv6 Largefile libz SSL UnixSockets
 
+ARG CURL_VER
 WORKDIR /tmp/curl
 RUN git clone https://github.com/curl/curl.git --branch $CURL_VER --depth 1 . \
  && autoreconf -sif \
@@ -245,6 +260,7 @@ RUN git clone https://github.com/curl/curl.git --branch $CURL_VER --depth 1 . \
         --enable-largefile \
         --enable-proxy \
         --enable-unix-sockets \
+        --with-libnghttp2="$DESTDIR/usr" \
         --with-ssl="$DESTDIR/usr" \
         --with-zlib="$DESTDIR/usr" \
         --enable-optimize \
@@ -281,9 +297,7 @@ RUN git clone https://github.com/curl/curl.git --branch $CURL_VER --depth 1 . \
         --without-winidn \
  && make DESTDIR="$DESTDIR" install \
  && install -Dm755 "$DESTDIR/usr/bin/curl" "$OUTPUT/usr/bin/curl" \
-    # Cheat and "borrow" libnghttp2 from Alpine
- && mkdir -p "$OUTPUT/usr/lib" \
- && cp -a "$DESTDIR"/usr/lib/*.so* /usr/lib/libnghttp2.so* "$OUTPUT/usr/lib"
+ && cp -aP "$DESTDIR"/usr/lib/*.so* "$OUTPUT/usr/lib"
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -294,7 +308,6 @@ WORKDIR $OUTPUT
 
 COPY --from=plex    "$OUTPUT" .
 COPY --from=busybox "$OUTPUT" .
-COPY --from=zlib    "$OUTPUT" .
 COPY --from=xml     "$OUTPUT" .
 COPY --from=curl    "$OUTPUT" .
 
