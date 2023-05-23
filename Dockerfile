@@ -13,7 +13,7 @@ ARG CURL_VER=8.0.1
 ARG OUTPUT=/output
 ARG DESTDIR=/prefix
 
-ARG CFLAGS="-O2 -pipe -fstack-protector-strong -D_FORTIFY_SOURCE=2 -flto"
+ARG CFLAGS="-O2 -pipe -fstack-protector-strong -D_FORTIFY_SOURCE=2 -flto=auto"
 ARG LDFLAGS="$CFLAGS -Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now"
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
