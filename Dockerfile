@@ -1,4 +1,4 @@
-ARG PLEX_VER=1.32.1.6999-91e1e2e2c
+ARG PLEX_VER=1.32.2.7100-248a2daf0
 ARG BUSYBOX_VER=1.36.0
 ARG SU_EXEC_VER=0.4
 ARG TINI_VER=0.19.0
@@ -50,7 +50,7 @@ WORKDIR $OUTPUT
 RUN if [ "$(uname -m)" = "aarch64" ]; then \
         ARCH=arm64; LIB_DIRS=lib/omx; \
     else \
-        ARCH=amd64; LIB_DIRS=lib/dri; \
+        ARCH=amd64; \
     fi \
  && curl -fsSL -o plexmediaserver.deb https://downloads.plex.tv/plex-media-server-new/${PLEX_VER}/debian/plexmediaserver_${PLEX_VER}_${ARCH}.deb \
  && dpkg-deb -x plexmediaserver.deb . \
