@@ -9,6 +9,7 @@ ARG XMLSTAR_VER=1.6.1
 ARG OPENSSL_VER=3.0.9
 ARG NGHTTP2_VER=1.52.0
 ARG CURL_VER=8.1.2
+ARG LLVM_VERSION=10
 
 ARG OUTPUT=/output
 ARG DESTDIR=/prefix
@@ -307,6 +308,50 @@ RUN export CURL_TAG=curl-${CURL_VER//./_} \
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+FROM builder AS amd
+
+# Add transcoding libraries for AMD GPU/APUs
+
+ARG CFLAGS
+ARG LDFLAGS
+ARG MAKEFLAGS
+ARG OUTPUT
+ARG DESTDIR
+
+WORKDIR /tmp/amd
+
+RUN echo http://dl-cdn.alpinelinux.org/alpine/edge/main >> /etc/apk/repositories \
+	&& echo http://dl-cdn.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories \
+       && echo http://dl-cdn.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories \
+       && apk add --no-cache --update-cache libva-vdpau-driver libva-utils libxshmfence libdrm \
+        xf86-video-amdgpu mesa-dev libvdpau-dev mesa-va-gallium mesa-vdpau-gallium
+
+RUN mkdir -p "$OUTPUT/usr/bin" \
+        && cp -a /usr/bin/vainfo "$OUTPUT/usr/bin" \
+        && mkdir -p "$OUTPUT/usr/lib" \
+        && cp -a /usr/lib/libX*.so* "$OUTPUT/usr/lib" \
+        && cp -a /usr/lib/libwayland*.so* "$OUTPUT/usr/lib" \
+        && cp -a /usr/lib/libva*.so* "$OUTPUT/usr/lib" \
+        && cp -a /usr/lib/libdrm*.so* "$OUTPUT/usr/lib" \
+        && cp -a /usr/lib/libbsd*.so* "$OUTPUT/usr/lib" \
+        && cp -a /usr/lib/libxshmfence*.so* "$OUTPUT/usr/lib" \
+        && cp -a /usr/lib/libxcb*.so* "$OUTPUT/usr/lib" \
+        && cp -a /usr/lib/libffi*.so* "$OUTPUT/usr/lib" \
+        && cp -a /usr/lib/libLLVM*.so* "$OUTPUT/usr/lib" \
+        && cp -a /usr/lib/libzstd*.so* "$OUTPUT/usr/lib" \
+        && cp -a /usr/lib/libexpat*.so* "$OUTPUT/usr/lib" \
+        && cp -a /usr/lib/libelf*.so* "$OUTPUT/usr/lib" \
+        && cp -a /usr/lib/libstdc++*.so* "$OUTPUT/usr/lib" \
+        && cp -a /usr/lib/libgcc_s*.so* "$OUTPUT/usr/lib" \
+        && cp -a /usr/lib/libmd*.so* "$OUTPUT/usr/lib" \
+        && mkdir -p "$OUTPUT/usr/lib/dri" \
+        && ls -ltar /usr/lib/dri/ \
+        && cp -a /usr/lib/dri/*.so* "$OUTPUT/usr/lib/dri" \
+        && mkdir -p "$OUTPUT/usr/share/libdrm" \
+        && cp -a /usr/share/libdrm/* "$OUTPUT/usr/share/libdrm"
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 FROM builder AS combine
 
 ARG OUTPUT
@@ -316,6 +361,7 @@ COPY --from=plex    "$OUTPUT" .
 COPY --from=busybox "$OUTPUT" .
 COPY --from=xml     "$OUTPUT" .
 COPY --from=curl    "$OUTPUT" .
+COPY --from=amd     "$OUTPUT" .
 
 RUN install -m 1777 -o root -g root -d tmp \
  && ln -sv /usr/lib /usr/bin /usr/sbin . \

@@ -9,6 +9,16 @@ RESET='\033[0m'
 CONFIG_DIR="/config"
 OLD_CONFIG="/config/Plex Media Server"
 
+if [ -e /dev/dri/renderD128 ] && [ ! -x /dev/dri/renderD128 ]; then
+    2>&1 echo -e "${RED}####################### NOTICE #######################${RESET}"
+    2>&1 echo
+    2>&1 echo -e "${RED}     No permission to access /dev/dri/renderD128 (or /dev/dri/card*)${RESET}"
+    2>&1 echo -e "${RED}     Please ensure these devices have the execute permission set.${RESET}"
+    2>&1 echo
+    2>&1 echo -e "${RED}#######################################################${RESET}"
+    2>&1 echo
+fi
+
 if [ -d "$OLD_CONFIG" ] && mountpoint -q "$OLD_CONFIG"; then
     rm -rf /var/lib/plexmediaserver
     ln -sf "$CONFIG_DIR" /var/lib/plexmediaserver
