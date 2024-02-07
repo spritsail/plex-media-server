@@ -1,4 +1,4 @@
-ARG PLEX_VER=1.40.0.7775-456fbaf97
+ARG PLEX_VER=1.40.0.7996-4956e330f
 ARG BUSYBOX_VER=1.36.1
 ARG SU_EXEC_VER=0.4
 ARG TINI_VER=0.19.0
@@ -36,7 +36,8 @@ RUN apk add --no-cache \
         musl-dev \
         nghttp2-dev \
         pkgconfig \
-        xxd
+        xxd \
+        zstd
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
