@@ -2,13 +2,13 @@ ARG PLEX_VER=1.32.8.7639-fb6452ebf
 ARG BUSYBOX_VER=1.36.1
 ARG SU_EXEC_VER=0.4
 ARG TINI_VER=0.19.0
-ARG ZLIB_VER=1.3
-ARG LIBXML2_VER=2.11.5
-ARG LIBXSLT_VER=1.1.38
+ARG ZLIB_VER=1.3.1
+ARG LIBXML2_VER=2.12.5
+ARG LIBXSLT_VER=1.1.39
 ARG XMLSTAR_VER=1.6.1
-ARG OPENSSL_VER=3.0.10
-ARG NGHTTP2_VER=1.55.1
-ARG CURL_VER=8.4.0
+ARG OPENSSL_VER=3.0.13
+ARG NGHTTP2_VER=1.59.0
+ARG CURL_VER=8.6.0
 
 ARG OUTPUT=/output
 ARG DESTDIR=/prefix
@@ -36,7 +36,8 @@ RUN apk add --no-cache \
         musl-dev \
         nghttp2-dev \
         pkgconfig \
-        xxd
+        xxd \
+        zstd
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
