@@ -5,17 +5,28 @@
 
 # [spritsail/plex-media-server][hub]
 
-[![Layers](https://images.microbadger.com/badges/image/spritsail/plex-media-server.svg)][mbdg]
-[![Latest Version](https://images.microbadger.com/badges/version/spritsail/plex-media-server.svg)][hub]
-[![Git Commit](https://images.microbadger.com/badges/commit/spritsail/plex-media-server.svg)][git]
-[![Docker Pulls](https://img.shields.io/docker/pulls/spritsail/plex-media-server.svg)][hub]
-[![Docker Stars](https://img.shields.io/docker/stars/spritsail/plex-media-server.svg)][hub]
 [![Build Status](https://drone.spritsail.io/api/badges/spritsail/plex-media-server/status.svg)][drone]
 [![Last Build](https://api.spritsail.io/badge/lastbuild/spritsail/plex-media-server:latest)][drone]
 
-The _smallest*_ Plex Media Server docker image, built `FROM scratch` with musl provided by Plex and supporting libraries and binaries built from source. The container hosts a fully featured Plex Media Server, with almost all of the useless crap removed, resulting in the smallest container possible whilst maintaining full functionality.
+[![dockeri.co](https://dockeri.co/image/spritsail/plex-media-server)](https://hub.docker.com/r/spritsail/plex-media-server)
 
-_*last we checked_
+[![Latest size](https://img.shields.io/docker/image-size/spritsail/plex-media-server/latest?label=Latest%20image)](https://hub.docker.com/r/spritsail/plex-media-server/tags)
+
+[![GitHub last commit](https://img.shields.io/github/last-commit/spritsail/plex-media-server.svg)](https://github.com/spritsail/plex-media-server/commits/main)
+[![GitHub commit activity](https://img.shields.io/github/commit-activity/y/spritsail/plex-media-server.svg)](https://github.com/spritsail/plex-media-server/graphs/contributors)
+[![GitHub closed PRs](https://img.shields.io/github/issues-pr-closed/spritsail/plex-media-server.svg)](https://github.com/spritsail/plex-media-server/pulls?q=is%3Apr+is%3Aclosed)
+[![GitHub issues](https://img.shields.io/github/issues/spritsail/plex-media-server.svg)](https://github.com/spritsail/plex-media-server/issues)
+[![GitHub closed issues](https://img.shields.io/github/issues-closed/spritsail/plex-media-server.svg)](https://github.com/spritsail/plex-media-server/issues?q=is%3Aissue+is%3Aclosed)
+
+[![Lines of code](https://img.shields.io/tokei/lines/github/spritsail/plex-media-server)](https://github.com/spritsail/plex-media-server)
+![Code size](https://img.shields.io/github/languages/code-size/spritsail/plex-media-server)
+![GitHub repo size](https://img.shields.io/github/repo-size/spritsail/plex-media-server)
+
+[![MIT](https://img.shields.io/github/license/spritsail/plex-media-server)](https://github.com/spritsail/plex-media-server/master/LICENSE)
+
+The *smallest\** Plex Media Server docker image, built `FROM scratch` with musl provided by Plex and supporting libraries and binaries built from source. The container hosts a fully featured Plex Media Server, with almost all of the useless crap removed, resulting in the smallest container possible whilst maintaining full functionality.
+
+*\*last we checked*
 
 ## Getting Started
 
@@ -38,8 +49,7 @@ docker run -dt \
     spritsail/plex-media-server
 ```
 
-Finally, navigate to [app.plex.tv/desktop](https://app.plex.tv/desktop) or [your-ip:32400/web](http://localhost:32400/web) and you're done!
-
+Finally, navigate to [app.plex.tv/desktop](https://app.plex.tv/desktop) or [localhost:32400/web](http://localhost:32400/web) and you're done!
 
 ### Volumes
 
@@ -53,7 +63,7 @@ Finally, navigate to [app.plex.tv/desktop](https://app.plex.tv/desktop) or [your
 - `$SGID`                 - Group ID to run as _default: 900_
 - `$ALLOWED_NETWORKS`     - IP/netmask entries which allow access to the server without requiring authorization. We recommend you set this only if you do not sign in your server. For example `192.168.1.0/24,172.16.0.0/16` will allow access to the entire `192.168.1.x` range and the `172.16.x.x` range.
 - `$ADVERTISE_IP`         - This variable defines the additional IPs on which the server may be be found. For example: `http://10.1.1.23:32400`. This adds to the list where the server advertises that it can be found.
-- `$DISABLE_REMOTE_SEC`   - 
+- `$DISABLE_REMOTE_SEC`   -
 - `$PLEX_CLAIM`           - The claim token for the server to obtain a real server token. If not provided, server will not be automatically logged in. If server is already logged in, this parameter is ignored.
 - `$LOG_DEBUG`             - Disables debug logging if set to 0, and enables it if set to 1. This overwrites preferences set in the Plex Web user interface.
 - `$LOG_VERBOSE`           - Disables logging (except warnings and errors) if set to 0, and enables it if set to 1. This overwrites preferences set in the Plex Web user interface.
@@ -62,7 +72,7 @@ Finally, navigate to [app.plex.tv/desktop](https://app.plex.tv/desktop) or [your
 
 The following ports are all used by Plex for various applications
 
-- `32400/tcp`       Plex Web/Client Access 
+- `32400/tcp`       Plex Web/Client Access
 - `5353/udp`        Bonjour/Avahi
 - `3005/tcp`        Plex Home Theatre via Plex Companion
 - `8324/tcp`        Plex for Roku via Plex Companion
@@ -73,7 +83,7 @@ The following ports are all used by Plex for various applications
 - `32413/udp`       GDM network discovery
 - `32414/udp`       GDM network discovery
 
-See also: https://support.plex.tv/articles/201543147-what-network-ports-do-i-need-to-allow-through-my-firewall/
+See also: [support.plex.tv/articles/201543147-what-network-ports-do-i-need-to-allow-through-my-firewall/](https://support.plex.tv/articles/201543147-what-network-ports-do-i-need-to-allow-through-my-firewall/)
 
 At the very least, you should expose `32400/tcp` to your network, and _port forward_ it through your router if you would like Plex access outside your home network.
 
@@ -81,5 +91,6 @@ If you wish, you can map the Plex port to any other port outside your network, j
 
 ## Troubleshooting
 
-* **Help, I accidentally logged my server out and I can no longer access it**
-Just get another claim token from [plex.tv/claim](https://www.plex.tv/claim) and restart the container with it in the environment variable PLEX_CLAIM. This should re-claim your server and it'll appear in your server list once again. You can remove the claim token as soon as the server has been claimed- _they expire after 5 minutes anyway_
+- **Help, I accidentally logged my server out and I can no longer access it**
+
+    Just get another claim token from [plex.tv/claim](https://www.plex.tv/claim) and restart the container with it in the environment variable PLEX_CLAIM. This should re-claim your server and it'll appear in your server list once again. You can remove the claim token as soon as the server has been claimed- *they expire after 5 minutes anyway*
