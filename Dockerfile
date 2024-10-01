@@ -3,12 +3,12 @@ ARG BUSYBOX_VER=1.36.1
 ARG SU_EXEC_VER=0.4
 ARG TINI_VER=0.19.0
 ARG ZLIB_VER=1.3.1
-ARG LIBXML2_VER=2.12.6
-ARG LIBXSLT_VER=1.1.39
+ARG LIBXML2_VER=2.13.4
+ARG LIBXSLT_VER=1.1.42
 ARG XMLSTAR_VER=1.6.1
-ARG OPENSSL_VER=3.0.13
-ARG NGHTTP2_VER=1.61.0
-ARG CURL_VER=8.7.1
+ARG OPENSSL_VER=3.1.7
+ARG NGHTTP2_VER=1.63.0
+ARG CURL_VER=8.10.1
 
 ARG OUTPUT=/output
 ARG DESTDIR=/prefix
@@ -18,7 +18,7 @@ ARG LDFLAGS="$CFLAGS -Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now"
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-FROM spritsail/alpine:3.18 AS builder
+FROM spritsail/alpine:3.20 AS builder
 
 RUN apk add --no-cache \
         autoconf \
@@ -112,6 +112,8 @@ WORKDIR /tmp/tini
 
 RUN curl -fL https://github.com/krallin/tini/archive/v${TINI_VER}.tar.gz \
         | tar xz --strip-components=1 \
+ && curl -fsS https://github.com/krallin/tini/commit/7c430f3eb68ebfc8a8706ab09faad6c6fa8aa13e.patch \
+        | git apply \
  && cmake . \
  && make tini \
  && install -Dm755 tini "$OUTPUT/usr/sbin/tini"
