@@ -18,7 +18,7 @@ ARG LDFLAGS="$CFLAGS -Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now"
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-FROM spritsail/alpine:3.20 AS builder
+FROM spritsail/alpine:3.22 AS builder
 
 RUN apk add --no-cache \
         autoconf \
@@ -233,7 +233,6 @@ RUN curl -sSL https://openssl.org/source/openssl-${OPENSSL_VER}.tar.gz \
  && make DESTDIR="$DESTDIR" \
     install_sw \
     install_ssldirs \
- && make install_sw install_ssldirs \
  && cp -aP "$DESTDIR"/usr/lib/*.so* "$OUTPUT/usr/lib" \
  && sed -i "s@prefix=/usr@prefix=$DESTDIR/usr@g" "$DESTDIR"/usr/lib/pkgconfig/*.pc
 
