@@ -1,5 +1,5 @@
 ARG PLEX_VER=1.41.8.9834-071366d65
-ARG BUSYBOX_VER=1.36.1
+ARG BUSYBOX_VER=1.37.0
 ARG SU_EXEC_VER=0.4
 ARG TINI_VER=0.19.0
 ARG ZLIB_VER=1.3.1
@@ -92,7 +92,10 @@ WORKDIR /tmp/busybox
 
 RUN curl -fsSL https://busybox.net/downloads/busybox-${BUSYBOX_VER}.tar.bz2 \
         | tar xj --strip-components=1 \
+ && curl -fsS https://git.busybox.net/busybox/patch/?id=bf57f732a5b6842f6fa3e0f90385f039e5d6a92c | git apply \
  && make defconfig \
+ # https://lists.busybox.net/pipermail/busybox-cvs/2024-January/041752.html
+ && sed -i 's/CONFIG_TC=y/# CONFIG_TC is not set/' .config \
  && make \
  && install -Dm755 busybox "$OUTPUT/usr/bin/busybox" \
     # "Install" busybox, creating symlinks to all binaries it provides
