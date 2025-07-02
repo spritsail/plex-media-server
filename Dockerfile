@@ -224,6 +224,7 @@ RUN curl -sSL https://openssl.org/source/openssl-${OPENSSL_VER}.tar.gz \
         no-engine \
         no-rc5 \
         no-ssl3-method \
+        no-tests \
  && make build_libs \
  && make build_programs \
  && make DESTDIR="$DESTDIR" \
