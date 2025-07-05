@@ -1,14 +1,16 @@
 ARG PLEX_VER=1.41.8.9834-071366d65
-ARG BUSYBOX_VER=1.36.1
+ARG BUSYBOX_VER=1.37.0
 ARG SU_EXEC_VER=0.4
 ARG TINI_VER=0.19.0
 ARG ZLIB_VER=1.3.1
-ARG LIBXML2_VER=2.12.5
-ARG LIBXSLT_VER=1.1.39
+# https://sourceforge.net/p/xmlstar/bugs/135/
+# https://bugs.gentoo.org/944765
+ARG LIBXML2_VER=2.13.4
+ARG LIBXSLT_VER=1.1.43
 ARG XMLSTAR_VER=1.6.1
-ARG OPENSSL_VER=3.0.13
-ARG NGHTTP2_VER=1.59.0
-ARG CURL_VER=8.6.0
+ARG OPENSSL_VER=3.5.1
+ARG NGHTTP2_VER=1.66.0
+ARG CURL_VER=8.14.1
 
 ARG OUTPUT=/output
 ARG DESTDIR=/prefix
@@ -18,7 +20,7 @@ ARG LDFLAGS="$CFLAGS -Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now"
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-FROM spritsail/alpine:3.18 AS builder
+FROM spritsail/alpine:3.22 AS builder
 
 RUN apk add --no-cache \
         autoconf \
@@ -92,7 +94,10 @@ WORKDIR /tmp/busybox
 
 RUN curl -fsSL https://busybox.net/downloads/busybox-${BUSYBOX_VER}.tar.bz2 \
         | tar xj --strip-components=1 \
+ && curl -fsS https://git.busybox.net/busybox/patch/?id=bf57f732a5b6842f6fa3e0f90385f039e5d6a92c | git apply \
  && make defconfig \
+ # https://lists.busybox.net/pipermail/busybox-cvs/2024-January/041752.html
+ && sed -i 's/CONFIG_TC=y/# CONFIG_TC is not set/' .config \
  && make \
  && install -Dm755 busybox "$OUTPUT/usr/bin/busybox" \
     # "Install" busybox, creating symlinks to all binaries it provides
@@ -112,6 +117,8 @@ WORKDIR /tmp/tini
 
 RUN curl -fL https://github.com/krallin/tini/archive/v${TINI_VER}.tar.gz \
         | tar xz --strip-components=1 \
+ && curl -fsS https://github.com/krallin/tini/commit/7c430f3eb68ebfc8a8706ab09faad6c6fa8aa13e.patch \
+        | git apply \
  && cmake . \
  && make tini \
  && install -Dm755 tini "$OUTPUT/usr/sbin/tini"
@@ -222,12 +229,12 @@ RUN curl -sSL https://openssl.org/source/openssl-${OPENSSL_VER}.tar.gz \
         no-engine \
         no-rc5 \
         no-ssl3-method \
+        no-tests \
  && make build_libs \
  && make build_programs \
  && make DESTDIR="$DESTDIR" \
     install_sw \
     install_ssldirs \
- && make install_sw install_ssldirs \
  && cp -aP "$DESTDIR"/usr/lib/*.so* "$OUTPUT/usr/lib" \
  && sed -i "s@prefix=/usr@prefix=$DESTDIR/usr@g" "$DESTDIR"/usr/lib/pkgconfig/*.pc
 
