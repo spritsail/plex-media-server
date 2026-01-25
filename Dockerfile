@@ -5,7 +5,7 @@ ARG DESTDIR=/prefix
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-FROM spritsail/alpine:3.22 AS plex
+FROM spritsail/alpine:3.23 AS plex
 
 ARG PLEX_VER
 ARG OUTPUT
@@ -45,7 +45,7 @@ RUN apk add --no-cache curl dpkg \
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-FROM spritsail/alpine:3.22
+FROM spritsail/alpine:3.23
 
 RUN apk add --no-cache \
         curl \
