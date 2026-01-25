@@ -1,7 +1,7 @@
 ARG PLEX_VER=1.42.2.10156-f737b826c
 ARG BUSYBOX_VER=1.37.0
 ARG SU_EXEC_VER=0.4
-ARG TINI_VER=0.19.0
+ARG TINI_VER=924c4bd6028457188942ecbfdc75e6a343fa9395
 ARG ZLIB_VER=1.3.1
 # https://sourceforge.net/p/xmlstar/bugs/135/
 # https://bugs.gentoo.org/944765
@@ -115,10 +115,8 @@ RUN curl -fL https://github.com/frebib/su-exec/archive/v${SU_EXEC_VER}.tar.gz \
 ARG TINI_VER
 WORKDIR /tmp/tini
 
-RUN curl -fL https://github.com/krallin/tini/archive/v${TINI_VER}.tar.gz \
+RUN curl -fL https://github.com/krallin/tini/archive/${TINI_VER}.tar.gz \
         | tar xz --strip-components=1 \
- && curl -fsS https://github.com/krallin/tini/commit/7c430f3eb68ebfc8a8706ab09faad6c6fa8aa13e.patch \
-        | git apply \
  && cmake . \
  && make tini \
  && install -Dm755 tini "$OUTPUT/usr/sbin/tini"
