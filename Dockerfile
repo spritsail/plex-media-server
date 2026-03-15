@@ -94,7 +94,7 @@ WORKDIR /tmp/busybox
 
 RUN curl -fsSL https://busybox.net/downloads/busybox-${BUSYBOX_VER}.tar.bz2 \
         | tar xj --strip-components=1 \
- && curl -fsS https://git.busybox.net/busybox/patch/?id=bf57f732a5b6842f6fa3e0f90385f039e5d6a92c | git apply \
+ && curl -fsS https://github.com/mirror/busybox/commit/bf57f732a5b6842f6fa3e0f90385f039e5d6a92c.patch | git apply \
  && make defconfig \
  # https://lists.busybox.net/pipermail/busybox-cvs/2024-January/041752.html
  && sed -i 's/CONFIG_TC=y/# CONFIG_TC is not set/' .config \
