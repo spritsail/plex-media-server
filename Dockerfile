@@ -74,7 +74,7 @@ RUN if [ "$(uname -m)" = "aarch64" ]; then \
         Resources/start.sh \
     \
     # Place shared libraries in usr/lib so they can be actually shared
- && mv lib/*.so* $LIB_DIRS ../ \
+ && mv -v lib/*.so* $LIB_DIRS ../ \
  && rmdir lib \
  && ln -sv ../ lib \
     # Replace hardlink with a symlink; these files are the same
@@ -142,7 +142,7 @@ RUN curl -sSf https://www.zlib.net/zlib-$ZLIB_VER.tar.xz \
  && make install \
  && make DESTDIR="$DESTDIR" install \
  && mkdir -p "$OUTPUT/usr/lib" \
- && cp -aP "$DESTDIR"/usr/lib/*.so* "$OUTPUT/usr/lib"
+ && cp -vaP "$DESTDIR"/usr/lib/*.so* "$OUTPUT/usr/lib"
 
 ARG LIBXML2_VER
 WORKDIR /tmp/libxml2
@@ -162,7 +162,7 @@ RUN git clone https://gitlab.gnome.org/GNOME/libxml2.git --branch v$LIBXML2_VER 
         --without-python \
  && make install \
  && make DESTDIR="$DESTDIR" install \
- && cp -aP "$DESTDIR"/usr/lib/*.so* "$OUTPUT/usr/lib"
+ && cp -vaP "$DESTDIR"/usr/lib/*.so* "$OUTPUT/usr/lib"
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -185,7 +185,7 @@ RUN git clone https://gitlab.gnome.org/GNOME/libxslt.git --branch v$LIBXSLT_VER 
         --without-plugins \
         --without-python \
  && make DESTDIR="$DESTDIR" install \
- && cp -aP "$DESTDIR"/usr/lib/*.so* "$OUTPUT/usr/lib"
+ && cp -vaP "$DESTDIR"/usr/lib/*.so* "$OUTPUT/usr/lib"
 
 ARG XMLSTAR_VER
 ADD xmlstarlet-*.patch /tmp
@@ -233,7 +233,7 @@ RUN curl -sSL https://openssl.org/source/openssl-${OPENSSL_VER}.tar.gz \
  && make DESTDIR="$DESTDIR" \
     install_sw \
     install_ssldirs \
- && cp -aP "$DESTDIR"/usr/lib/*.so* "$OUTPUT/usr/lib" \
+ && cp -vaP "$DESTDIR"/usr/lib/*.so* "$OUTPUT/usr/lib" \
  && sed -i "s@prefix=/usr@prefix=$DESTDIR/usr@g" "$DESTDIR"/usr/lib/pkgconfig/*.pc
 
 ARG NGHTTP2_VER
@@ -248,7 +248,7 @@ RUN git clone https://github.com/nghttp2/nghttp2.git -b v$NGHTTP2_VER --depth 1 
         --with-openssl=yes \
         --with-zlib=yes \
  && make DESTDIR="$DESTDIR" install \
- && cp -aP "$DESTDIR"/usr/lib/libnghttp2*.so* "$OUTPUT/usr/lib"
+ && cp -vaP "$DESTDIR"/usr/lib/libnghttp2*.so* "$OUTPUT/usr/lib"
 
 # /usr/lib # curl --version
 # curl 8.0.1 (x86_64-pc-linux-musl) libcurl/8.0.1 OpenSSL/3.0.8 zlib/1.2.13 nghttp2/1.52.0
@@ -309,7 +309,7 @@ RUN export CURL_TAG=curl-${CURL_VER//./_} \
         --without-winidn \
  && make DESTDIR="$DESTDIR" install \
  && install -Dm755 "$DESTDIR/usr/bin/curl" "$OUTPUT/usr/bin/curl" \
- && cp -aP "$DESTDIR"/usr/lib/*.so* "$OUTPUT/usr/lib"
+ && cp -vaP "$DESTDIR"/usr/lib/*.so* "$OUTPUT/usr/lib"
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
