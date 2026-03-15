@@ -56,7 +56,7 @@ RUN if [ "$(uname -m)" = "aarch64" ]; then \
     else \
         ARCH=amd64; \
     fi \
- && curl -fsSL -o plexmediaserver.deb https://downloads.plex.tv/plex-media-server-new/${PLEX_VER}/debian/plexmediaserver_${PLEX_VER}_${ARCH}.deb \
+ && curl -fsSL -o plexmediaserver.deb https://repo.plex.tv/deb/pool/main/p/plexmediaserver/plexmediaserver_${PLEX_VER}_${ARCH}.deb \
  && dpkg-deb -x plexmediaserver.deb . \
     \
  && rm -rfv \
