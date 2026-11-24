@@ -144,7 +144,7 @@ RUN curl -sSf https://www.zlib.net/zlib-$ZLIB_VER.tar.xz \
 ARG LIBXML2_VER
 WORKDIR /tmp/libxml2
 
-RUN git clone https://gitlab.gnome.org/GNOME/libxml2.git --branch v$LIBXML2_VER --depth 1 . \
+RUN git clone https://github.com/gnome/libxml2.git --branch v$LIBXML2_VER --depth 1 . \
  && ./autogen.sh \
         --prefix=/usr \
         --with-zlib="$DESTDIR/usr" \
@@ -174,7 +174,7 @@ ARG DESTDIR
 ARG LIBXSLT_VER
 WORKDIR /tmp/libxslt
 
-RUN git clone https://gitlab.gnome.org/GNOME/libxslt.git --branch v$LIBXSLT_VER --depth 1 . \
+RUN git clone https://github.com/gnome/libxslt.git --branch v$LIBXSLT_VER --depth 1 . \
  && ./autogen.sh \
         --prefix=/usr \
         --with-libxml-src=../libxml2 \
