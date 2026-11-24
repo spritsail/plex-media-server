@@ -1,14 +1,14 @@
 ARG PLEX_VER=1.43.6.11212-fa660d0cd
-ARG BUSYBOX_VER=1.37.0
+ARG BUSYBOX_VER=1.38.0
 ARG SU_EXEC_VER=0.4
 ARG TINI_VER=924c4bd6028457188942ecbfdc75e6a343fa9395
-ARG ZLIB_VER=1.3.2
-ARG LIBXML2_VER=2.15.3
+ARG ZLIB_VER=1.4
+ARG LIBXML2_VER=2.15.4
 ARG LIBXSLT_VER=1.1.45
 ARG XMLSTAR_VER=1.6.1
-ARG OPENSSL_VER=3.5.6
-ARG NGHTTP2_VER=1.68.1
-ARG CURL_VER=8.19.0
+ARG OPENSSL_VER=3.5.9
+ARG NGHTTP2_VER=1.71.0
+ARG CURL_VER=8.23.0
 
 ARG OUTPUT=/output
 ARG DESTDIR=/prefix
@@ -18,7 +18,7 @@ ARG LDFLAGS="$CFLAGS -Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now"
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-FROM spritsail/alpine:3.23 AS builder
+FROM spritsail/alpine:3.24 AS builder
 
 RUN apk add --no-cache \
         autoconf \
@@ -92,7 +92,6 @@ WORKDIR /tmp/busybox
 
 RUN curl -fsSL https://busybox.net/downloads/busybox-${BUSYBOX_VER}.tar.bz2 \
         | tar xj --strip-components=1 \
- && curl -fsS https://github.com/mirror/busybox/commit/bf57f732a5b6842f6fa3e0f90385f039e5d6a92c.patch | git apply \
  && make defconfig \
  # https://lists.busybox.net/pipermail/busybox-cvs/2024-January/041752.html
  && sed -i 's/CONFIG_TC=y/# CONFIG_TC is not set/' .config \
